@@ -38,7 +38,7 @@ const ENCOURAGEMENTS = [
   "Breathe. You're more prepared than you think. 🌿",
 ];
 
-export function ExamCountdown() {
+export function ExamCountdown({ displayOnly = false }: { displayOnly?: boolean } = {}) {
   const { exam, setExam } = useExam();
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState("");
