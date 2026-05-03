@@ -23,11 +23,13 @@ export const Route = createFileRoute("/")({
 type Overlay = null | "mood" | "reset";
 
 function Index() {
+  const { theme, setTheme } = useTheme();
   const [tasks, setTasks] = useState<PlannedTask[] | null>(null);
   const [activeIdx, setActiveIdx] = useState(0);
   const [overlay, setOverlay] = useState<Overlay>(null);
   const [mood, setMood] = useState<Mood | null>(null);
   const [now, setNow] = useState(() => new Date());
+  const tagline = THEME_TAGLINES[theme];
 
   // Re-tick the schedule clock so upcoming start times reflect real time
   useEffect(() => {
