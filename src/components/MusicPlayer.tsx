@@ -6,9 +6,13 @@ import { Input } from "@/components/ui/input";
 type Source = { kind: "youtube" | "spotify"; id: string; label: string };
 
 const PRESETS: Source[] = [
-  { kind: "youtube", id: "jfKfPfyJRdk", label: "Lofi Girl — beats to relax/study" },
-  { kind: "youtube", id: "4xDzrJKXOOY", label: "Synthwave radio — chill" },
-  { kind: "spotify", id: "playlist/37i9dQZF1DWWQRwui0ExPn", label: "Spotify · Lofi Beats" },
+  { kind: "youtube", id: "jfKfPfyJRdk", label: "YouTube · Lofi Girl — beats to relax/study" },
+  { kind: "youtube", id: "4xDzrJKXOOY", label: "YouTube · Synthwave radio — chill" },
+  { kind: "youtube", id: "5qap5aO4i9A", label: "YouTube · Chillhop Essentials" },
+  { kind: "spotify", id: "playlist/37i9dQZF1DWWQRwui0ExPn", label: "Spotify · Lofi Beats (default)" },
+  { kind: "spotify", id: "playlist/37i9dQZF1DX8Uebhn9wzrS", label: "Spotify · Chill Lofi Study Beats" },
+  { kind: "spotify", id: "playlist/37i9dQZF1DX3Ogo9pFvBkY", label: "Spotify · Ambient Relaxation" },
+  { kind: "spotify", id: "playlist/37i9dQZF1DWZeKCadgRdKQ", label: "Spotify · Deep Focus" },
 ];
 
 const STORAGE = "burnout-brake-music";
