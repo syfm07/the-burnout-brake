@@ -9,16 +9,29 @@ const NOTIF_KEY = "burnout-brake-exam-notified";
 
 type Exam = { name: string; date: string } | null;
 
+const EVENT = "burnout-brake-exam-change";
+
 export function useExam() {
   const [exam, setExamState] = useState<Exam>(null);
   useEffect(() => {
-    const v = localStorage.getItem(STORAGE_KEY);
-    if (v) try { setExamState(JSON.parse(v)); } catch {}
+    const read = () => {
+      const v = localStorage.getItem(STORAGE_KEY);
+      if (v) { try { setExamState(JSON.parse(v)); } catch { setExamState(null); } }
+      else setExamState(null);
+    };
+    read();
+    window.addEventListener(EVENT, read);
+    window.addEventListener("storage", read);
+    return () => {
+      window.removeEventListener(EVENT, read);
+      window.removeEventListener("storage", read);
+    };
   }, []);
   const setExam = (e: Exam) => {
     setExamState(e);
     if (e) localStorage.setItem(STORAGE_KEY, JSON.stringify(e));
     else { localStorage.removeItem(STORAGE_KEY); localStorage.removeItem(NOTIF_KEY); }
+    window.dispatchEvent(new Event(EVENT));
   };
   return { exam, setExam };
 }
