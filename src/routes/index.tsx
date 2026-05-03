@@ -4,7 +4,7 @@ import { StudyTimer } from "@/components/StudyTimer";
 import { MoodPicker, type Mood } from "@/components/MoodPicker";
 import { ResetActivity } from "@/components/ResetActivity";
 import { AppToaster } from "@/components/Toaster";
-import { Brain, X } from "lucide-react";
+import { Brain } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   component: Index,
