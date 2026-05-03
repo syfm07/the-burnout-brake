@@ -41,12 +41,12 @@ function Index() {
   // Pause the running timer whenever a non-focused mood is picked
   const paused = overlay === "reset" && mood !== null && mood !== "focused";
 
-  // Auto check-in every 30 seconds (testing) — only while a session is active
+  // Auto check-in every 10 minutes — only while a session is active
   useEffect(() => {
     if (!tasks) return;
     const i = window.setInterval(() => {
       setOverlay((cur) => (cur === null ? "mood" : cur));
-    }, 30 * 1000);
+    }, 10 * 60 * 1000);
     return () => window.clearInterval(i);
   }, [tasks]);
 
