@@ -134,9 +134,15 @@ export function StudyTimer({
     enterFullscreen();
   };
 
-  const progress = 1 - seconds / total;
-  const C = 2 * Math.PI * 130;
+  const progress = 1 - seconds / total; // 0 → 1
   const done = seconds === 0;
+  // Ice melts: shrinks, rounds, becomes more transparent. Puddle grows underneath.
+  const iceSize = 220 - progress * 140; // 220 → 80
+  const iceRadius = 18 + progress * 40; // sharp cube → blob
+  const iceOpacity = done ? 0 : 1 - progress * 0.55;
+  const iceTilt = progress * 8;
+  const puddleWidth = 60 + progress * 200;
+  const puddleHeight = 8 + progress * 18;
 
   return (
     <div className="flex flex-col items-center gap-6">
