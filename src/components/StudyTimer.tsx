@@ -151,22 +151,51 @@ export function StudyTimer({
         <h2 className="text-xl font-semibold leading-tight">{task.name}</h2>
       </div>
 
-      <div className="relative">
-        <svg width="280" height="280" viewBox="0 0 320 320" className="-rotate-90">
-          <circle cx="160" cy="160" r="130" stroke="var(--color-muted)" strokeWidth="14" fill="none" />
-          <circle
-            cx="160" cy="160" r="130"
-            stroke="var(--color-primary)" strokeWidth="14" fill="none"
-            strokeLinecap="round"
-            strokeDasharray={C}
-            strokeDashoffset={C * (1 - progress)}
-            style={{ transition: "stroke-dashoffset 1s linear" }}
-          />
-        </svg>
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-5xl font-display tabular-nums">{fmt(seconds)}</span>
+      <div className="relative w-[280px] h-[280px] flex items-end justify-center">
+        {/* Puddle */}
+        <div
+          className="absolute bottom-4 rounded-[50%] bg-gradient-to-b from-sky-300/70 to-sky-500/60 blur-[1px] transition-all duration-1000 ease-linear"
+          style={{
+            width: `${puddleWidth}px`,
+            height: `${puddleHeight}px`,
+            opacity: progress * 0.9 + (done ? 0.1 : 0),
+            boxShadow: "0 4px 18px -4px rgba(56,189,248,0.5)",
+          }}
+        />
+        {/* Ice cube */}
+        {!done && (
+          <div
+            className="absolute transition-all duration-1000 ease-linear"
+            style={{
+              width: `${iceSize}px`,
+              height: `${iceSize}px`,
+              bottom: `${20 + puddleHeight / 2}px`,
+              transform: `rotate(${iceTilt}deg)`,
+              opacity: iceOpacity,
+              borderRadius: `${iceRadius}px`,
+              background:
+                "linear-gradient(135deg, rgba(224,242,254,0.95) 0%, rgba(186,230,253,0.85) 40%, rgba(125,211,252,0.75) 100%)",
+              boxShadow:
+                "inset -8px -10px 24px rgba(14,165,233,0.35), inset 10px 12px 24px rgba(255,255,255,0.85), 0 10px 30px -8px rgba(56,189,248,0.45)",
+              backdropFilter: "blur(2px)",
+            }}
+          >
+            {/* Highlights */}
+            <div
+              className="absolute top-3 left-4 w-1/3 h-1/4 rounded-full bg-white/70 blur-sm"
+              style={{ opacity: 0.8 - progress * 0.5 }}
+            />
+            <div
+              className="absolute bottom-4 right-5 w-1/4 h-1/6 rounded-full bg-white/40 blur-sm"
+              style={{ opacity: 0.6 - progress * 0.4 }}
+            />
+          </div>
+        )}
+        {/* Timer text overlay */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+          <span className="text-5xl font-display tabular-nums drop-shadow-sm">{fmt(seconds)}</span>
           <span className="text-xs text-muted-foreground mt-1">
-            {done ? "Task complete!" : paused ? "Paused — check-in in progress" : running ? "Focus session" : "Ready when you are"}
+            {done ? "Melted — task complete!" : paused ? "Paused — check-in in progress" : running ? "Ice is melting…" : "Ready when you are"}
           </span>
         </div>
       </div>
