@@ -160,7 +160,8 @@ function Index() {
             <p className="text-xs text-muted-foreground">{tagline.emoji} {tagline.tag}</p>
           </div>
         </div>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-2">
+          <ExamCountdown displayOnly={!!exam} />
           {tasks && (
             <Button
               size="sm"
@@ -177,7 +178,7 @@ function Index() {
 
       {!tasks ? (
         <section className="w-full max-w-md bg-card/80 backdrop-blur rounded-3xl p-7 shadow-pillow border border-border">
-          <SessionPlanner onStart={(t) => { setTasks(t); setActiveIdx(0); }} />
+          <SessionPlanner onStart={(t) => { setTasks(t); setActiveIdx(0); setActiveStart(new Date()); }} />
         </section>
       ) : (
         <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-[1fr_minmax(0,28rem)_1fr] gap-5 items-start">
