@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Pause, Play, RotateCcw, HeartHandshake } from "lucide-react";
-
-const FOCUS_SECONDS = 25 * 60;
+import { Pause, Play, SkipForward, HeartHandshake, CheckCircle2 } from "lucide-react";
+import type { PlannedTask } from "./SessionPlanner";
 
 function fmt(s: number) {
   const m = Math.floor(s / 60).toString().padStart(2, "0");
@@ -10,30 +9,53 @@ function fmt(s: number) {
   return `${m}:${ss}`;
 }
 
-export function StudyTimer({ onCheckIn }: { onCheckIn: () => void }) {
-  const [seconds, setSeconds] = useState(FOCUS_SECONDS);
+export function StudyTimer({
+  task,
+  paused,
+  onCheckIn,
+  onComplete,
+}: {
+  task: PlannedTask;
+  paused: boolean;
+  onCheckIn: () => void;
+  onComplete: () => void;
+}) {
+  const total = task.minutes * 60;
+  const [seconds, setSeconds] = useState(total);
   const [running, setRunning] = useState(false);
   const ref = useRef<number | null>(null);
 
+  // Reset whenever the active task changes
   useEffect(() => {
-    if (!running) return;
+    setSeconds(total);
+    setRunning(false);
+  }, [task.id, total]);
+
+  useEffect(() => {
+    if (!running || paused) return;
     ref.current = window.setInterval(() => {
       setSeconds((s) => (s > 0 ? s - 1 : 0));
     }, 1000);
     return () => { if (ref.current) window.clearInterval(ref.current); };
-  }, [running]);
+  }, [running, paused]);
 
   useEffect(() => {
     if (seconds === 0) setRunning(false);
   }, [seconds]);
 
-  const progress = 1 - seconds / FOCUS_SECONDS;
+  const progress = 1 - seconds / total;
   const C = 2 * Math.PI * 130;
+  const done = seconds === 0;
 
   return (
-    <div className="flex flex-col items-center gap-7">
+    <div className="flex flex-col items-center gap-6">
+      <div className="text-center space-y-1">
+        <p className="text-xs uppercase tracking-wider text-muted-foreground">Now working on</p>
+        <h2 className="text-xl font-semibold leading-tight">{task.name}</h2>
+      </div>
+
       <div className="relative">
-        <svg width="320" height="320" viewBox="0 0 320 320" className="-rotate-90">
+        <svg width="280" height="280" viewBox="0 0 320 320" className="-rotate-90">
           <circle cx="160" cy="160" r="130" stroke="var(--color-muted)" strokeWidth="14" fill="none" />
           <circle
             cx="160" cy="160" r="130"
@@ -45,31 +67,41 @@ export function StudyTimer({ onCheckIn }: { onCheckIn: () => void }) {
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-6xl font-display tabular-nums">{fmt(seconds)}</span>
-          <span className="text-sm text-muted-foreground mt-1">
-            {seconds === 0 ? "Time for a reset" : running ? "Focus session" : "Ready when you are"}
+          <span className="text-5xl font-display tabular-nums">{fmt(seconds)}</span>
+          <span className="text-xs text-muted-foreground mt-1">
+            {done ? "Task complete!" : paused ? "Paused — check-in in progress" : running ? "Focus session" : "Ready when you are"}
           </span>
         </div>
       </div>
 
       <div className="flex gap-3">
-        <Button
-          size="lg"
-          onClick={() => setRunning((r) => !r)}
-          className="rounded-2xl px-8 shadow-pillow"
-          disabled={seconds === 0}
-        >
-          {running ? <Pause className="mr-2 h-4 w-4" /> : <Play className="mr-2 h-4 w-4" />}
-          {running ? "Pause" : "Start"}
-        </Button>
-        <Button
-          size="lg"
-          variant="secondary"
-          onClick={() => { setRunning(false); setSeconds(FOCUS_SECONDS); }}
-          className="rounded-2xl"
-        >
-          <RotateCcw className="h-4 w-4" />
-        </Button>
+        {done ? (
+          <Button size="lg" onClick={onComplete} className="rounded-2xl px-6 shadow-pillow">
+            <CheckCircle2 className="mr-2 h-4 w-4" />
+            Mark done · Next
+          </Button>
+        ) : (
+          <>
+            <Button
+              size="lg"
+              onClick={() => setRunning((r) => !r)}
+              disabled={paused}
+              className="rounded-2xl px-8 shadow-pillow"
+            >
+              {running ? <Pause className="mr-2 h-4 w-4" /> : <Play className="mr-2 h-4 w-4" />}
+              {running ? "Pause" : "Start"}
+            </Button>
+            <Button
+              size="lg"
+              variant="secondary"
+              onClick={onComplete}
+              className="rounded-2xl"
+              title="Skip to next task"
+            >
+              <SkipForward className="h-4 w-4" />
+            </Button>
+          </>
+        )}
       </div>
 
       <button
