@@ -135,7 +135,7 @@ function Index() {
                         {task.name}
                       </p>
                       <p className="text-xs text-muted-foreground tabular-nums">
-                        {fmtTime(start)} – {fmtTime(end)} · {task.minutes}m
+                        {start && end ? `${fmtTime(start)} – ${fmtTime(end)} · ` : ""}{task.minutes}m
                       </p>
                     </div>
                   </li>
