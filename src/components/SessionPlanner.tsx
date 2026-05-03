@@ -43,10 +43,12 @@ export function SessionPlanner({ onStart }: { onStart: (tasks: PlannedTask[]) =>
     const tasks: PlannedTask[] = valid.map((d, i) => ({
       id: d.id,
       name: d.name.trim() || `Task ${i + 1}`,
-      minutes: Math.min(d.minutesNum, 180),
+      minutes: Math.min(d.minutesNum, 600),
     }));
     if (tasks.length) onStart(tasks);
   };
+
+  const hasLongTask = valid.some((d) => d.minutesNum > 180);
 
   return (
     <div className="space-y-5">
@@ -75,7 +77,7 @@ export function SessionPlanner({ onStart }: { onStart: (tasks: PlannedTask[]) =>
               <Input
                 type="number"
                 min={1}
-                max={180}
+                max={600}
                 value={d.minutes}
                 onChange={(e) => update(d.id, { minutes: e.target.value })}
                 className="w-16 bg-background/70 rounded-xl border-0 text-center"
@@ -120,6 +122,15 @@ export function SessionPlanner({ onStart }: { onStart: (tasks: PlannedTask[]) =>
             <li>• Focus on your top 2–3 only</li>
             <li>• Take recovery breaks between sessions</li>
           </ul>
+        </div>
+      )}
+
+      {hasLongTask && (
+        <div className="bg-peach/40 border border-peach rounded-2xl p-4 text-sm space-y-1">
+          <p className="font-semibold">🧠 Long focus session ahead</p>
+          <p className="text-muted-foreground text-xs">
+            Sessions over 3 hours can drain you. If you're sure, that's okay — just remember to breathe and stretch. You can continue.
+          </p>
         </div>
       )}
 

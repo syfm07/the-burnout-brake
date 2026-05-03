@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { StudyTimer } from "@/components/StudyTimer";
 import { MoodPicker, type Mood } from "@/components/MoodPicker";
 import { ResetActivity } from "@/components/ResetActivity";
@@ -7,10 +7,9 @@ import { SessionPlanner, type PlannedTask } from "@/components/SessionPlanner";
 import { AppToaster } from "@/components/Toaster";
 import { ThemePicker, useTheme } from "@/components/ThemePicker";
 import { ThemeScene, THEME_TAGLINES } from "@/components/ThemeScene";
-import { ModeSelector, ModeBadge, useBlockedApps, type AppMode } from "@/components/ModeSelector";
 import { StreakBadges, BADGES } from "@/components/StreakBadges";
 import { MusicPlayer } from "@/components/MusicPlayer";
-import { ExamCountdown } from "@/components/ExamCountdown";
+import { ExamCountdown, useExam } from "@/components/ExamCountdown";
 import { PeakHours, logCompletion } from "@/components/PeakHours";
 import { BreakTimer, breakMinutesFor } from "@/components/BreakTimer";
 import { AllDoneScreen } from "@/components/AllDoneScreen";
@@ -38,17 +37,12 @@ function Index() {
   const [mood, setMood] = useState<Mood | null>(null);
   const [now, setNow] = useState(() => new Date());
   const tagline = THEME_TAGLINES[theme];
+  const { exam } = useExam();
+  const [showExamPrompt, setShowExamPrompt] = useState(false);
+  const [examPromptDismissed, setExamPromptDismissed] = useState(false);
 
-  // App-blocking modes
-  const { blocked } = useBlockedApps();
-  const [mode, setMode] = useState<AppMode>("off");
-  const [modeEndsAt, setModeEndsAt] = useState<number | null>(null);
-  const [modeRemaining, setModeRemaining] = useState(0);
-  const [timerStartSignal, setTimerStartSignal] = useState(0);
-  const [timerResetSignal, setTimerResetSignal] = useState(0);
   const [breakInfo, setBreakInfo] = useState<{ minutes: number; nextName: string } | null>(null);
   const [allDone, setAllDone] = useState(false);
-  const stressedSinceRef = useRef<number | null>(null);
 
   // Streak + badges
   const [streak, setStreak] = useState<number>(() => {
@@ -60,36 +54,6 @@ function Index() {
     localStorage.setItem("burnout-brake-streak", String(streak));
   }, [streak]);
 
-  const startMode = (m: "focus" | "recovery") => {
-    const dur = m === "focus" ? 25 * 60_000 : 10 * 60_000;
-    setMode(m);
-    setModeEndsAt(Date.now() + dur);
-    setModeRemaining(dur);
-    if (m === "focus") {
-      setTimerStartSignal((s) => s + 1);
-      toast.success("Focus Mode started — recovery stopped, timer running");
-    } else {
-      setTimerResetSignal((s) => s + 1);
-      toast.success("Recovery Mode — timer reset, enjoy your break");
-    }
-  };
-
-  useEffect(() => {
-    if (mode === "off" || modeEndsAt === null) return;
-    const i = window.setInterval(() => {
-      const left = modeEndsAt - Date.now();
-      if (left <= 0) {
-        setMode("off");
-        setModeEndsAt(null);
-        setModeRemaining(0);
-        toast(mode === "focus" ? "Focus session complete 🎉" : "Break's over — back to it");
-        window.clearInterval(i);
-      } else {
-        setModeRemaining(left);
-      }
-    }, 1000);
-    return () => window.clearInterval(i);
-  }, [mode, modeEndsAt]);
 
   // Re-tick the schedule clock so upcoming start times reflect real time
   useEffect(() => {
@@ -157,7 +121,6 @@ function Index() {
     setAllDone(false);
     setTasks(null);
     setActiveIdx(0);
-    startMode("recovery");
   };
 
   const handleAddMore = () => {
@@ -171,6 +134,19 @@ function Index() {
     setTasks(null);
     setActiveIdx(0);
   };
+
+  // Show exam-countdown prompt on the landing/planner page once per visit
+  useEffect(() => {
+    if (!tasks && !exam && !examPromptDismissed) {
+      const t = window.setTimeout(() => setShowExamPrompt(true), 600);
+      return () => window.clearTimeout(t);
+    }
+  }, [tasks, exam, examPromptDismissed]);
+
+  // Auto-dismiss the prompt once the user has saved an exam
+  useEffect(() => {
+    if (exam && showExamPrompt) setShowExamPrompt(false);
+  }, [exam, showExamPrompt]);
 
   return (
     <main className="min-h-screen flex flex-col items-center px-4 py-10">
@@ -187,21 +163,18 @@ function Index() {
             <p className="text-xs text-muted-foreground">{tagline.emoji} {tagline.tag}</p>
           </div>
         </div>
-        <div className="flex items-start gap-2">
-          <ExamCountdown />
-          <div className="flex items-center gap-1">
-            {tasks && (
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => { setTasks(null); setActiveIdx(0); closeOverlay(); }}
-                className="text-xs"
-              >
-                <RotateCcw className="h-3 w-3 mr-1" /> New plan
-              </Button>
-            )}
-            <ThemePicker theme={theme} onChange={setTheme} />
-          </div>
+        <div className="flex items-center gap-1">
+          {tasks && (
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => { setTasks(null); setActiveIdx(0); closeOverlay(); }}
+              className="text-xs"
+            >
+              <RotateCcw className="h-3 w-3 mr-1" /> New plan
+            </Button>
+          )}
+          <ThemePicker theme={theme} onChange={setTheme} />
         </div>
       </header>
 
@@ -256,16 +229,17 @@ function Index() {
               paused={paused}
               onCheckIn={() => setOverlay("mood")}
               onComplete={completeTask}
-              autoStartSignal={timerStartSignal}
-              resetSignal={timerResetSignal}
             />
-            <ModeBadge mode={mode} remainingMs={modeRemaining} blockedCount={blocked.length} />
-            <ModeSelector mode={mode} onStart={startMode} />
           </section>
 
           {/* RIGHT — Streak + Music */}
           <div className="space-y-5 lg:order-3 order-3">
-            <StreakBadges streak={streak} />
+            <div className="flex flex-col sm:flex-row gap-3 items-stretch">
+              <div className="flex-1 min-w-0">
+                <StreakBadges streak={streak} />
+              </div>
+              {exam && <ExamCountdown displayOnly />}
+            </div>
             <MusicPlayer />
           </div>
         </div>
@@ -300,27 +274,42 @@ function Index() {
                   onPick={(m) => {
                     setMood(m);
                     setOverlay("reset");
-                    if (m === "stressed") {
-                      const since = stressedSinceRef.current;
-                      const FIVE_MIN = 5 * 60_000;
-                      if (since && Date.now() - since >= FIVE_MIN) {
-                        if (mode !== "recovery") {
-                          startMode("recovery");
-                          toast("Stressed for 5+ min — apps unlocked for a break 🫶");
-                        }
-                        stressedSinceRef.current = null;
-                      } else if (!since) {
-                        stressedSinceRef.current = Date.now();
-                      }
-                    } else {
-                      stressedSinceRef.current = null;
-                    }
                   }}
                 />
               )}
               {overlay === "reset" && mood && (
                 <ResetActivity mood={mood} onDone={closeOverlay} />
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showExamPrompt && !exam && !tasks && (
+        <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-md flex items-center justify-center p-6">
+          <div className="bg-card rounded-3xl p-6 shadow-pillow border border-border max-w-sm w-full space-y-4">
+            <div className="text-center space-y-1">
+              <h3 className="text-lg font-semibold">Got an exam coming up? 📚</h3>
+              <p className="text-xs text-muted-foreground">
+                Add a countdown so you can see how many days you have to prepare.
+              </p>
+            </div>
+            <ExamCountdown />
+            <div className="flex gap-2">
+              <Button
+                variant="ghost"
+                className="flex-1 rounded-2xl text-xs"
+                onClick={() => { setShowExamPrompt(false); setExamPromptDismissed(true); }}
+              >
+                Skip for now
+              </Button>
+              <Button
+                className="flex-1 rounded-2xl text-xs"
+                onClick={() => setShowExamPrompt(false)}
+                disabled={!exam}
+              >
+                Done
+              </Button>
             </div>
           </div>
         </div>

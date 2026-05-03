@@ -38,7 +38,7 @@ const ENCOURAGEMENTS = [
   "Breathe. You're more prepared than you think. 🌿",
 ];
 
-export function ExamCountdown() {
+export function ExamCountdown({ displayOnly = false }: { displayOnly?: boolean } = {}) {
   const { exam, setExam } = useExam();
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState("");
@@ -56,6 +56,8 @@ export function ExamCountdown() {
     toast(`📚 ${exam.name} in ${days} day${days === 1 ? "" : "s"}`, { description: msg, duration: 6000 });
     localStorage.setItem(NOTIF_KEY, today);
   }, [exam]);
+
+  if (displayOnly && !exam) return null;
 
   if (editing || !exam) {
     return (
