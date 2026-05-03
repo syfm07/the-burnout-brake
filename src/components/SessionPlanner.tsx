@@ -43,10 +43,12 @@ export function SessionPlanner({ onStart }: { onStart: (tasks: PlannedTask[]) =>
     const tasks: PlannedTask[] = valid.map((d, i) => ({
       id: d.id,
       name: d.name.trim() || `Task ${i + 1}`,
-      minutes: Math.min(d.minutesNum, 180),
+      minutes: Math.min(d.minutesNum, 600),
     }));
     if (tasks.length) onStart(tasks);
   };
+
+  const hasLongTask = valid.some((d) => d.minutesNum > 180);
 
   return (
     <div className="space-y-5">
