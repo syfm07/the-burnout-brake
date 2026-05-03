@@ -77,7 +77,7 @@ export function SessionPlanner({ onStart }: { onStart: (tasks: PlannedTask[]) =>
               <Input
                 type="number"
                 min={1}
-                max={180}
+                max={600}
                 value={d.minutes}
                 onChange={(e) => update(d.id, { minutes: e.target.value })}
                 className="w-16 bg-background/70 rounded-xl border-0 text-center"
