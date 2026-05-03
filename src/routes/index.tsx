@@ -67,7 +67,7 @@ function Index() {
     setModeRemaining(dur);
     if (m === "focus") {
       setTimerStartSignal((s) => s + 1);
-      toast.success("Focus Mode started — timer running, apps blocked");
+      toast.success("Focus Mode started — recovery stopped, timer running");
     } else {
       setTimerResetSignal((s) => s + 1);
       toast.success("Recovery Mode — timer reset, enjoy your break");
