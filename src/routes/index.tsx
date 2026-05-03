@@ -35,7 +35,7 @@ function Index() {
   const [activeIdx, setActiveIdx] = useState(0);
   const [overlay, setOverlay] = useState<Overlay>(null);
   const [mood, setMood] = useState<Mood | null>(null);
-  const [now, setNow] = useState(() => new Date());
+  
   const [activeStart, setActiveStart] = useState<Date>(() => new Date());
   const tagline = THEME_TAGLINES[theme];
   const { exam } = useExam();
