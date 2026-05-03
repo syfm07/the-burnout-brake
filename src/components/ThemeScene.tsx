@@ -13,7 +13,7 @@ export function ThemeScene({ theme }: { theme: ThemeId }) {
         size: 2 + Math.random() * 3,
         key: i,
       })),
-      bubbles: rand(18).map((i) => {
+      bubbles: rand(32).map((i) => {
         const duration = 10 + Math.random() * 14;
         return {
           left: `${Math.random() * 100}%`,
