@@ -26,17 +26,19 @@ export function SessionPlanner({ onStart }: { onStart: (tasks: PlannedTask[]) =>
     setDrafts((d) => (d.length > 1 ? d.filter((x) => x.id !== id) : d));
   const add = () => setDrafts((d) => [...d, newDraft()]);
 
+  // A row counts as valid as long as the duration is a positive number.
+  // Empty names get auto-labeled "Task N" so users aren't blocked.
   const valid = drafts
-    .map((d) => ({ ...d, minutes: parseInt(d.minutes, 10) }))
-    .filter((d) => d.name.trim() && Number.isFinite(d.minutes) && d.minutes > 0);
+    .map((d) => ({ ...d, minutesNum: parseInt(d.minutes, 10) }))
+    .filter((d) => Number.isFinite(d.minutesNum) && d.minutesNum > 0);
 
-  const totalMin = valid.reduce((s, t) => s + t.minutes, 0);
+  const totalMin = valid.reduce((s, t) => s + t.minutesNum, 0);
 
   const handleStart = () => {
-    const tasks: PlannedTask[] = valid.map((d) => ({
+    const tasks: PlannedTask[] = valid.map((d, i) => ({
       id: d.id,
-      name: d.name.trim(),
-      minutes: Math.min(d.minutes, 180),
+      name: d.name.trim() || `Task ${i + 1}`,
+      minutes: Math.min(d.minutesNum, 180),
     }));
     if (tasks.length) onStart(tasks);
   };
