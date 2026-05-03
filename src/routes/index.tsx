@@ -143,6 +143,11 @@ function Index() {
     }
   }, [tasks, exam, examPromptDismissed]);
 
+  // Auto-dismiss the prompt once the user has saved an exam
+  useEffect(() => {
+    if (exam && showExamPrompt) setShowExamPrompt(false);
+  }, [exam, showExamPrompt]);
+
   return (
     <main className="min-h-screen flex flex-col items-center px-4 py-10">
       <ThemeScene theme={theme} />
