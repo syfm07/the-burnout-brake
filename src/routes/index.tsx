@@ -198,7 +198,25 @@ function Index() {
             <div className="w-full max-w-md">
               {overlay === "mood" && (
                 <MoodPicker
-                  onPick={(m) => { setMood(m); setOverlay("reset"); }}
+                  onPick={(m) => {
+                    setMood(m);
+                    setOverlay("reset");
+                    if (m === "stressed") {
+                      const since = stressedSinceRef.current;
+                      const FIVE_MIN = 5 * 60_000;
+                      if (since && Date.now() - since >= FIVE_MIN) {
+                        if (mode !== "recovery") {
+                          startMode("recovery");
+                          toast("Stressed for 5+ min — apps unlocked for a break 🫶");
+                        }
+                        stressedSinceRef.current = null;
+                      } else if (!since) {
+                        stressedSinceRef.current = Date.now();
+                      }
+                    } else {
+                      stressedSinceRef.current = null;
+                    }
+                  }}
                 />
               )}
               {overlay === "reset" && mood && (
