@@ -84,16 +84,19 @@ function Index() {
             <p className="text-xs text-muted-foreground">Study softer. Last longer.</p>
           </div>
         </div>
-        {tasks && (
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={() => { setTasks(null); setActiveIdx(0); closeOverlay(); }}
-            className="text-xs"
-          >
-            <RotateCcw className="h-3 w-3 mr-1" /> New plan
-          </Button>
-        )}
+        <div className="flex items-center gap-1">
+          {tasks && (
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => { setTasks(null); setActiveIdx(0); closeOverlay(); }}
+              className="text-xs"
+            >
+              <RotateCcw className="h-3 w-3 mr-1" /> New plan
+            </Button>
+          )}
+          <ThemePicker />
+        </div>
       </header>
 
       {!tasks ? (
