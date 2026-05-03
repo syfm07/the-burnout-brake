@@ -5,6 +5,7 @@ import { MoodPicker, type Mood } from "@/components/MoodPicker";
 import { ResetActivity } from "@/components/ResetActivity";
 import { SessionPlanner, type PlannedTask } from "@/components/SessionPlanner";
 import { AppToaster } from "@/components/Toaster";
+import { ThemePicker } from "@/components/ThemePicker";
 import { Brain, CheckCircle2, Circle, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
