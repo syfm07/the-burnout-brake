@@ -30,15 +30,7 @@ export function AllDoneScreen({
       <h2 className="text-3xl">You did it. 🎉</h2>
       <p className="text-base text-muted-foreground italic">"{quote}"</p>
       <div className="grid grid-cols-1 gap-2 pt-2">
-        <Button onClick={onRest} size="lg" className="rounded-2xl shadow-pillow">
-          <Coffee className="h-4 w-4 mr-2" />
-          Take a 10-min recovery break
-        </Button>
-        <Button onClick={onContinue} variant="secondary" size="lg" className="rounded-2xl">
-          <Plus className="h-4 w-4 mr-2" />
-          Add another task
-        </Button>
-        <Button onClick={onHome} variant="ghost" size="lg" className="rounded-2xl">
+        <Button onClick={onHome} size="lg" className="rounded-2xl shadow-pillow">
           <Home className="h-4 w-4 mr-2" />
           Back to plan a new day
         </Button>
