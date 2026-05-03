@@ -25,6 +25,14 @@ function Index() {
   const [activeIdx, setActiveIdx] = useState(0);
   const [overlay, setOverlay] = useState<Overlay>(null);
   const [mood, setMood] = useState<Mood | null>(null);
+  const [now, setNow] = useState(() => new Date());
+
+  // Re-tick the schedule clock so upcoming start times reflect real time
+  useEffect(() => {
+    if (!tasks) return;
+    const i = window.setInterval(() => setNow(new Date()), 30 * 1000);
+    return () => window.clearInterval(i);
+  }, [tasks]);
 
   // Pause the running timer whenever a non-focused mood is picked
   const paused = overlay === "reset" && mood !== null && mood !== "focused";
