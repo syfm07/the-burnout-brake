@@ -66,11 +66,20 @@ function MoodIllustration({ mood }: { mood: Mood }) {
   );
 }
 
+const FOCUSED_MESSAGES = [
+  "You're in the zone — keep that momentum going. 🌱",
+  "Look at you, locked in. Future-you is grateful.",
+  "Quiet focus is a superpower. Ride the wave.",
+  "This is what progress feels like. Keep going.",
+  "Steady and sharp — exactly where you need to be.",
+];
+
 export function ResetActivity({ mood, onDone }: { mood: Mood; onDone: () => void }) {
   const [data, setData] = useState<Suggestion | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(mood !== "focused");
 
   useEffect(() => {
+    if (mood === "focused") return;
     let cancelled = false;
     (async () => {
       setLoading(true);
@@ -88,6 +97,24 @@ export function ResetActivity({ mood, onDone }: { mood: Mood; onDone: () => void
     })();
     return () => { cancelled = true; };
   }, [mood]);
+
+  if (mood === "focused") {
+    const msg = FOCUSED_MESSAGES[Math.floor(Math.random() * FOCUSED_MESSAGES.length)];
+    return (
+      <div className="space-y-6 text-center">
+        <div className="rounded-3xl bg-secondary/40 p-2">
+          <MoodIllustration mood="focused" />
+        </div>
+        <div className="space-y-2">
+          <h2 className="text-2xl">Keep going. 💪</h2>
+          <p className="text-base text-muted-foreground leading-relaxed px-2">{msg}</p>
+        </div>
+        <Button onClick={onDone} size="lg" className="w-full rounded-2xl shadow-pillow">
+          Back to studying
+        </Button>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
