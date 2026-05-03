@@ -219,11 +219,7 @@ function Index() {
               paused={paused}
               onCheckIn={() => setOverlay("mood")}
               onComplete={completeTask}
-              autoStartSignal={timerStartSignal}
-              resetSignal={timerResetSignal}
             />
-            <ModeBadge mode={mode} remainingMs={modeRemaining} blockedCount={blocked.length} />
-            <ModeSelector mode={mode} onStart={startMode} />
           </section>
 
           {/* RIGHT — Streak + Music */}
