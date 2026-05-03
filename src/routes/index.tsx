@@ -46,6 +46,8 @@ function Index() {
   const [modeRemaining, setModeRemaining] = useState(0);
   const [timerStartSignal, setTimerStartSignal] = useState(0);
   const [timerResetSignal, setTimerResetSignal] = useState(0);
+  const [breakInfo, setBreakInfo] = useState<{ minutes: number; nextName: string } | null>(null);
+  const [allDone, setAllDone] = useState(false);
   const stressedSinceRef = useRef<number | null>(null);
 
   // Streak + badges
