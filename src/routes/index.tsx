@@ -37,17 +37,12 @@ function Index() {
   const [mood, setMood] = useState<Mood | null>(null);
   const [now, setNow] = useState(() => new Date());
   const tagline = THEME_TAGLINES[theme];
+  const { exam } = useExam();
+  const [showExamPrompt, setShowExamPrompt] = useState(false);
+  const [examPromptDismissed, setExamPromptDismissed] = useState(false);
 
-  // App-blocking modes
-  const { blocked } = useBlockedApps();
-  const [mode, setMode] = useState<AppMode>("off");
-  const [modeEndsAt, setModeEndsAt] = useState<number | null>(null);
-  const [modeRemaining, setModeRemaining] = useState(0);
-  const [timerStartSignal, setTimerStartSignal] = useState(0);
-  const [timerResetSignal, setTimerResetSignal] = useState(0);
   const [breakInfo, setBreakInfo] = useState<{ minutes: number; nextName: string } | null>(null);
   const [allDone, setAllDone] = useState(false);
-  const stressedSinceRef = useRef<number | null>(null);
 
   // Streak + badges
   const [streak, setStreak] = useState<number>(() => {
