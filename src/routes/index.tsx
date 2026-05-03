@@ -108,7 +108,10 @@ function Index() {
   const finishBreak = () => {
     if (!tasks) return;
     setBreakInfo(null);
-    if (activeIdx + 1 < tasks.length) setActiveIdx(activeIdx + 1);
+    if (activeIdx + 1 < tasks.length) {
+      setActiveIdx(activeIdx + 1);
+      setActiveStart(new Date());
+    }
   };
 
   const handleRest = () => {
