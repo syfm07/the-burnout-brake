@@ -211,40 +211,43 @@ function Index() {
         </section>
       ) : (
         <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-[1fr_minmax(0,28rem)_1fr] gap-5 items-start">
-          {/* LEFT — Schedule */}
-          <section className="bg-card/60 backdrop-blur rounded-3xl p-5 border border-border lg:order-1 order-2">
-            <h3 className="text-sm font-semibold mb-3 text-muted-foreground uppercase tracking-wider">
-              Today's schedule
-            </h3>
-            <ol className="space-y-2">
-              {schedule.map(({ task, start, end }, i) => {
-                const isActive = i === activeIdx;
-                const isDone = i < activeIdx;
-                return (
-                  <li
-                    key={task.id}
-                    className={`flex items-center gap-3 p-2 rounded-xl transition-colors ${
-                      isActive ? "bg-lavender/40" : ""
-                    }`}
-                  >
-                    {isDone ? (
-                      <CheckCircle2 className="h-4 w-4 text-sage-foreground flex-shrink-0" />
-                    ) : (
-                      <Circle className={`h-4 w-4 flex-shrink-0 ${isActive ? "text-primary" : "text-muted-foreground"}`} />
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <p className={`text-sm truncate ${isDone ? "line-through text-muted-foreground" : ""}`}>
-                        {task.name}
-                      </p>
-                      <p className="text-xs text-muted-foreground tabular-nums">
-                        {start && end ? `${fmtTime(start)} – ${fmtTime(end)} · ` : ""}{task.minutes}m
-                      </p>
-                    </div>
-                  </li>
-                );
-              })}
-            </ol>
-          </section>
+          {/* LEFT — Schedule + Peak Hours */}
+          <div className="space-y-5 lg:order-1 order-2">
+            <section className="bg-card/60 backdrop-blur rounded-3xl p-5 border border-border">
+              <h3 className="text-sm font-semibold mb-3 text-muted-foreground uppercase tracking-wider">
+                Today's schedule
+              </h3>
+              <ol className="space-y-2">
+                {schedule.map(({ task, start, end }, i) => {
+                  const isActive = i === activeIdx;
+                  const isDone = i < activeIdx;
+                  return (
+                    <li
+                      key={task.id}
+                      className={`flex items-center gap-3 p-2 rounded-xl transition-colors ${
+                        isActive ? "bg-lavender/40" : ""
+                      }`}
+                    >
+                      {isDone ? (
+                        <CheckCircle2 className="h-4 w-4 text-sage-foreground flex-shrink-0" />
+                      ) : (
+                        <Circle className={`h-4 w-4 flex-shrink-0 ${isActive ? "text-primary" : "text-muted-foreground"}`} />
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <p className={`text-sm truncate ${isDone ? "line-through text-muted-foreground" : ""}`}>
+                          {task.name}
+                        </p>
+                        <p className="text-xs text-muted-foreground tabular-nums">
+                          {start && end ? `${fmtTime(start)} – ${fmtTime(end)} · ` : ""}{task.minutes}m
+                        </p>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ol>
+            </section>
+            <PeakHours />
+          </div>
 
           {/* CENTER — Timer */}
           <section className="bg-card/80 backdrop-blur rounded-3xl p-6 shadow-pillow border border-border space-y-4 lg:order-2 order-1">
