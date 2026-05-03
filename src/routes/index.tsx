@@ -129,6 +129,7 @@ function Index() {
 
   const completeTask = () => {
     if (!tasks) return;
+    logCompletion();
     const newStreak = streak + 1;
     setStreak(newStreak);
     const earned = BADGES.find((b) => b.threshold === newStreak);
@@ -137,8 +138,38 @@ function Index() {
     } else {
       toast(`Task done! 🎉 Streak: ${newStreak}`);
     }
+    const finishedTask = tasks[activeIdx];
+    if (activeIdx + 1 < tasks.length) {
+      const nextTask = tasks[activeIdx + 1];
+      setBreakInfo({ minutes: breakMinutesFor(finishedTask.minutes), nextName: nextTask.name });
+    } else {
+      setAllDone(true);
+    }
+  };
+
+  const finishBreak = () => {
+    if (!tasks) return;
+    setBreakInfo(null);
     if (activeIdx + 1 < tasks.length) setActiveIdx(activeIdx + 1);
-    else { setTasks(null); setActiveIdx(0); }
+  };
+
+  const handleRest = () => {
+    setAllDone(false);
+    setTasks(null);
+    setActiveIdx(0);
+    startMode("recovery");
+  };
+
+  const handleAddMore = () => {
+    setAllDone(false);
+    setTasks(null);
+    setActiveIdx(0);
+  };
+
+  const handleHome = () => {
+    setAllDone(false);
+    setTasks(null);
+    setActiveIdx(0);
   };
 
   return (
