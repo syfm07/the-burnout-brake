@@ -177,10 +177,20 @@ function Index() {
               paused={paused}
               onCheckIn={() => setOverlay("mood")}
               onComplete={completeTask}
+              autoStartSignal={timerStartSignal}
+              resetSignal={timerResetSignal}
             />
             <ModeBadge mode={mode} remainingMs={modeRemaining} blockedCount={blocked.length} />
             <ModeSelector mode={mode} onStart={startMode} />
           </section>
+
+          <div className="w-full max-w-md mt-5">
+            <StreakBadges streak={streak} />
+          </div>
+
+          <div className="w-full max-w-md mt-5">
+            <MusicPlayer />
+          </div>
 
           <section className="w-full max-w-md mt-5 bg-card/60 backdrop-blur rounded-3xl p-5 border border-border">
             <h3 className="text-sm font-semibold mb-3 text-muted-foreground uppercase tracking-wider">
