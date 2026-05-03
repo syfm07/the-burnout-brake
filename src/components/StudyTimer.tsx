@@ -14,11 +14,15 @@ export function StudyTimer({
   paused,
   onCheckIn,
   onComplete,
+  autoStartSignal = 0,
+  resetSignal = 0,
 }: {
   task: PlannedTask;
   paused: boolean;
   onCheckIn: () => void;
   onComplete: () => void;
+  autoStartSignal?: number;
+  resetSignal?: number;
 }) {
   const total = task.minutes * 60;
   const [seconds, setSeconds] = useState(total);
@@ -30,6 +34,24 @@ export function StudyTimer({
     setSeconds(total);
     setRunning(false);
   }, [task.id, total]);
+
+  // Auto-start when Focus Mode kicks in
+  useEffect(() => {
+    if (autoStartSignal > 0) {
+      setSeconds(total);
+      setRunning(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoStartSignal]);
+
+  // Reset when Recovery Mode kicks in
+  useEffect(() => {
+    if (resetSignal > 0) {
+      setSeconds(total);
+      setRunning(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resetSignal]);
 
   useEffect(() => {
     if (!running || paused) return;
@@ -74,7 +96,7 @@ export function StudyTimer({
         </div>
       </div>
 
-      <div className="flex gap-3">
+      <div className="flex gap-3 flex-wrap justify-center">
         {done ? (
           <Button size="lg" onClick={onComplete} className="rounded-2xl px-6 shadow-pillow">
             <CheckCircle2 className="mr-2 h-4 w-4" />
@@ -94,6 +116,16 @@ export function StudyTimer({
             <Button
               size="lg"
               variant="secondary"
+              onClick={onComplete}
+              className="rounded-2xl"
+              title="Mark done early"
+            >
+              <CheckCircle2 className="h-4 w-4 mr-1" />
+              Done
+            </Button>
+            <Button
+              size="lg"
+              variant="ghost"
               onClick={onComplete}
               className="rounded-2xl"
               title="Skip to next task"
