@@ -35,7 +35,8 @@ function Index() {
   const [activeIdx, setActiveIdx] = useState(0);
   const [overlay, setOverlay] = useState<Overlay>(null);
   const [mood, setMood] = useState<Mood | null>(null);
-  const [now, setNow] = useState(() => new Date());
+  
+  const [activeStart, setActiveStart] = useState<Date>(() => new Date());
   const tagline = THEME_TAGLINES[theme];
   const { exam } = useExam();
   const [showExamPrompt, setShowExamPrompt] = useState(false);
@@ -55,13 +56,6 @@ function Index() {
   }, [streak]);
 
 
-  // Re-tick the schedule clock so upcoming start times reflect real time
-  useEffect(() => {
-    if (!tasks) return;
-    const i = window.setInterval(() => setNow(new Date()), 30 * 1000);
-    return () => window.clearInterval(i);
-  }, [tasks]);
-
   // Pause the running timer whenever a non-focused mood is picked
   const paused = overlay === "reset" && mood !== null && mood !== "focused";
 
@@ -78,7 +72,7 @@ function Index() {
 
   const schedule = useMemo(() => {
     if (!tasks) return [];
-    let cursor = new Date(now);
+    let cursor = new Date(activeStart);
     return tasks.map((t, i) => {
       if (i < activeIdx) return { task: t, start: null as Date | null, end: null as Date | null };
       const start = new Date(cursor);
@@ -86,7 +80,7 @@ function Index() {
       cursor = end;
       return { task: t, start, end };
     });
-  }, [tasks, activeIdx, now]);
+  }, [tasks, activeIdx, activeStart]);
 
   const fmtTime = (d: Date) =>
     d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
@@ -114,7 +108,10 @@ function Index() {
   const finishBreak = () => {
     if (!tasks) return;
     setBreakInfo(null);
-    if (activeIdx + 1 < tasks.length) setActiveIdx(activeIdx + 1);
+    if (activeIdx + 1 < tasks.length) {
+      setActiveIdx(activeIdx + 1);
+      setActiveStart(new Date());
+    }
   };
 
   const handleRest = () => {
@@ -163,7 +160,8 @@ function Index() {
             <p className="text-xs text-muted-foreground">{tagline.emoji} {tagline.tag}</p>
           </div>
         </div>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-2">
+          <ExamCountdown displayOnly={!!exam} />
           {tasks && (
             <Button
               size="sm"
@@ -180,7 +178,7 @@ function Index() {
 
       {!tasks ? (
         <section className="w-full max-w-md bg-card/80 backdrop-blur rounded-3xl p-7 shadow-pillow border border-border">
-          <SessionPlanner onStart={(t) => { setTasks(t); setActiveIdx(0); }} />
+          <SessionPlanner onStart={(t) => { setTasks(t); setActiveIdx(0); setActiveStart(new Date()); }} />
         </section>
       ) : (
         <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-[1fr_minmax(0,28rem)_1fr] gap-5 items-start">
@@ -234,12 +232,7 @@ function Index() {
 
           {/* RIGHT — Streak + Music */}
           <div className="space-y-5 lg:order-3 order-3">
-            <div className="flex flex-col sm:flex-row gap-3 items-stretch">
-              <div className="flex-1 min-w-0">
-                <StreakBadges streak={streak} />
-              </div>
-              {exam && <ExamCountdown displayOnly />}
-            </div>
+            <StreakBadges streak={streak} />
             <MusicPlayer />
           </div>
         </div>
@@ -294,7 +287,7 @@ function Index() {
                 Add a countdown so you can see how many days you have to prepare.
               </p>
             </div>
-            <ExamCountdown />
+            <div className="flex justify-center"><ExamCountdown /></div>
             <div className="flex gap-2">
               <Button
                 variant="ghost"
