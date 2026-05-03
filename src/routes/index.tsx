@@ -232,12 +232,7 @@ function Index() {
 
           {/* RIGHT — Streak + Music */}
           <div className="space-y-5 lg:order-3 order-3">
-            <div className="flex flex-col sm:flex-row gap-3 items-stretch">
-              <div className="flex-1 min-w-0">
-                <StreakBadges streak={streak} />
-              </div>
-              {exam && <ExamCountdown displayOnly />}
-            </div>
+            <StreakBadges streak={streak} />
             <MusicPlayer />
           </div>
         </div>
