@@ -121,7 +121,6 @@ function Index() {
     setAllDone(false);
     setTasks(null);
     setActiveIdx(0);
-    startMode("recovery");
   };
 
   const handleAddMore = () => {
