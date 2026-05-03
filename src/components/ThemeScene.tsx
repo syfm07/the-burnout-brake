@@ -13,29 +13,38 @@ export function ThemeScene({ theme }: { theme: ThemeId }) {
         size: 2 + Math.random() * 3,
         key: i,
       })),
-      bubbles: rand(18).map((i) => ({
-        left: `${Math.random() * 100}%`,
-        size: 14 + Math.random() * 36,
-        duration: `${10 + Math.random() * 14}s`,
-        delay: `${Math.random() * 12}s`,
-        key: i,
-      })),
-      leaves: rand(14).map((i) => ({
-        left: `${Math.random() * 100}%`,
-        duration: `${10 + Math.random() * 10}s`,
-        delay: `${Math.random() * 12}s`,
-        key: i,
-      })),
-      petals: rand(20).map((i) => ({
-        left: `${Math.random() * 100}%`,
-        duration: `${9 + Math.random() * 9}s`,
-        delay: `${Math.random() * 10}s`,
-        key: i,
-      })),
+      bubbles: rand(18).map((i) => {
+        const duration = 10 + Math.random() * 14;
+        return {
+          left: `${Math.random() * 100}%`,
+          size: 14 + Math.random() * 36,
+          duration: `${duration}s`,
+          delay: `-${Math.random() * duration}s`,
+          key: i,
+        };
+      }),
+      leaves: rand(14).map((i) => {
+        const duration = 10 + Math.random() * 10;
+        return {
+          left: `${Math.random() * 100}%`,
+          duration: `${duration}s`,
+          delay: `-${Math.random() * duration}s`,
+          key: i,
+        };
+      }),
+      petals: rand(20).map((i) => {
+        const duration = 9 + Math.random() * 9;
+        return {
+          left: `${Math.random() * 100}%`,
+          duration: `${duration}s`,
+          delay: `-${Math.random() * duration}s`,
+          key: i,
+        };
+      }),
       dots: rand(5).map((i) => ({
         top: `${10 + Math.random() * 70}%`,
         left: `${Math.random() * 90}%`,
-        delay: `${Math.random() * 6}s`,
+        delay: `-${Math.random() * 10}s`,
         key: i,
       })),
     };
