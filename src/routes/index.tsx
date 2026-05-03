@@ -158,21 +158,18 @@ function Index() {
             <p className="text-xs text-muted-foreground">{tagline.emoji} {tagline.tag}</p>
           </div>
         </div>
-        <div className="flex items-start gap-2">
-          <ExamCountdown />
-          <div className="flex items-center gap-1">
-            {tasks && (
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => { setTasks(null); setActiveIdx(0); closeOverlay(); }}
-                className="text-xs"
-              >
-                <RotateCcw className="h-3 w-3 mr-1" /> New plan
-              </Button>
-            )}
-            <ThemePicker theme={theme} onChange={setTheme} />
-          </div>
+        <div className="flex items-center gap-1">
+          {tasks && (
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => { setTasks(null); setActiveIdx(0); closeOverlay(); }}
+              className="text-xs"
+            >
+              <RotateCcw className="h-3 w-3 mr-1" /> New plan
+            </Button>
+          )}
+          <ThemePicker theme={theme} onChange={setTheme} />
         </div>
       </header>
 
