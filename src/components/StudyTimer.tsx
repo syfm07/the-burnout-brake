@@ -136,13 +136,12 @@ export function StudyTimer({
 
   const progress = 1 - seconds / total; // 0 → 1
   const done = seconds === 0;
-  // Ice melts: shrinks, rounds, becomes more transparent. Puddle grows underneath.
-  const iceSize = 220 - progress * 140; // 220 → 80
-  const iceRadius = 18 + progress * 40; // sharp cube → blob
-  const iceOpacity = done ? 0 : 1 - progress * 0.55;
-  const iceTilt = progress * 8;
-  const puddleWidth = 60 + progress * 200;
-  const puddleHeight = 8 + progress * 18;
+  // Cartoon ice melt: cube shrinks slightly + sags, drips elongate, puddle grows
+  const cubeScale = 1 - progress * 0.35;
+  const cubeSag = progress * 18; // px the cube settles into puddle
+  const dripLen = 10 + progress * 70; // how far each drip stretches down
+  const puddleScale = 0.4 + progress * 1.1;
+  const STROKE = "#2b6a8f";
 
   return (
     <div className="flex flex-col items-center gap-6">
@@ -151,46 +150,114 @@ export function StudyTimer({
         <h2 className="text-xl font-semibold leading-tight">{task.name}</h2>
       </div>
 
-      <div className="relative w-[280px] h-[280px] flex items-end justify-center">
-        {/* Puddle */}
-        <div
-          className="absolute bottom-4 rounded-[50%] bg-gradient-to-b from-sky-300/70 to-sky-500/60 blur-[1px] transition-all duration-1000 ease-linear"
-          style={{
-            width: `${puddleWidth}px`,
-            height: `${puddleHeight}px`,
-            opacity: progress * 0.9 + (done ? 0.1 : 0),
-            boxShadow: "0 4px 18px -4px rgba(56,189,248,0.5)",
-          }}
-        />
-        {/* Ice cube */}
-        {!done && (
-          <div
-            className="absolute transition-all duration-1000 ease-linear"
-            style={{
-              width: `${iceSize}px`,
-              height: `${iceSize}px`,
-              bottom: `${20 + puddleHeight / 2}px`,
-              transform: `rotate(${iceTilt}deg)`,
-              opacity: iceOpacity,
-              borderRadius: `${iceRadius}px`,
-              background:
-                "linear-gradient(135deg, rgba(224,242,254,0.95) 0%, rgba(186,230,253,0.85) 40%, rgba(125,211,252,0.75) 100%)",
-              boxShadow:
-                "inset -8px -10px 24px rgba(14,165,233,0.35), inset 10px 12px 24px rgba(255,255,255,0.85), 0 10px 30px -8px rgba(56,189,248,0.45)",
-              backdropFilter: "blur(2px)",
-            }}
+      <div className="relative w-[300px] h-[300px] flex items-center justify-center">
+        <svg viewBox="0 0 300 300" width="300" height="300" className="overflow-visible">
+          <defs>
+            <linearGradient id="iceFace" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0%" stopColor="#f4fbff" />
+              <stop offset="100%" stopColor="#cfeaf7" />
+            </linearGradient>
+            <linearGradient id="iceSide" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0%" stopColor="#dff1fb" />
+              <stop offset="100%" stopColor="#a9d6ec" />
+            </linearGradient>
+            <linearGradient id="iceTop" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0%" stopColor="#ffffff" />
+              <stop offset="100%" stopColor="#e6f4fb" />
+            </linearGradient>
+            <radialGradient id="puddle" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="#bfe3f5" />
+              <stop offset="100%" stopColor="#7ec3e0" />
+            </radialGradient>
+          </defs>
+
+          {/* Puddle */}
+          <g
+            transform={`translate(150 245) scale(${puddleScale} ${puddleScale * 0.55})`}
+            style={{ transition: "transform 1s linear" }}
           >
-            {/* Highlights */}
-            <div
-              className="absolute top-3 left-4 w-1/3 h-1/4 rounded-full bg-white/70 blur-sm"
-              style={{ opacity: 0.8 - progress * 0.5 }}
+            <path
+              d="M -110 0 C -120 -22, -70 -34, -30 -28 C 10 -36, 70 -30, 100 -18 C 130 -6, 120 18, 80 22 C 30 30, -40 28, -90 18 C -120 12, -118 6, -110 0 Z"
+              fill="url(#puddle)"
+              stroke={STROKE}
+              strokeWidth="3"
+              strokeLinejoin="round"
+              opacity={Math.min(1, 0.15 + progress * 1.1)}
             />
-            <div
-              className="absolute bottom-4 right-5 w-1/4 h-1/6 rounded-full bg-white/40 blur-sm"
-              style={{ opacity: 0.6 - progress * 0.4 }}
-            />
-          </div>
-        )}
+            {/* shine */}
+            <ellipse cx="-30" cy="-14" rx="40" ry="4" fill="#ffffff" opacity={0.6 * progress} />
+          </g>
+
+          {/* Ice cube */}
+          {!done && (
+            <g
+              transform={`translate(150 ${130 + cubeSag}) scale(${cubeScale})`}
+              style={{ transition: "transform 1s linear" }}
+            >
+              {/* drips hanging from bottom edge */}
+              {[-55, -25, 5, 35].map((x, i) => {
+                const len = dripLen * (0.7 + ((i * 13) % 7) / 10);
+                return (
+                  <path
+                    key={i}
+                    d={`M ${x - 8} 55 Q ${x - 10} ${55 + len * 0.6}, ${x} ${55 + len} Q ${x + 10} ${55 + len * 0.6}, ${x + 8} 55 Z`}
+                    fill="url(#iceSide)"
+                    stroke={STROKE}
+                    strokeWidth="3"
+                    strokeLinejoin="round"
+                    style={{ transition: "d 1s linear" }}
+                  />
+                );
+              })}
+
+              {/* right side face */}
+              <path
+                d="M 60 -45 L 90 -75 L 90 35 L 60 55 Z"
+                fill="url(#iceSide)"
+                stroke={STROKE}
+                strokeWidth="4"
+                strokeLinejoin="round"
+              />
+              {/* top face */}
+              <path
+                d="M -60 -45 L -30 -75 L 90 -75 L 60 -45 Z"
+                fill="url(#iceTop)"
+                stroke={STROKE}
+                strokeWidth="4"
+                strokeLinejoin="round"
+              />
+              {/* front face */}
+              <path
+                d="M -60 -45 L 60 -45 L 60 55 L -60 55 Z"
+                fill="url(#iceFace)"
+                stroke={STROKE}
+                strokeWidth="4"
+                strokeLinejoin="round"
+              />
+              {/* drip lips on front edge */}
+              <path
+                d="M -45 -45 Q -42 -25, -50 -10 Q -58 -25, -55 -45 Z"
+                fill="#ffffff"
+                stroke={STROKE}
+                strokeWidth="3"
+                strokeLinejoin="round"
+                opacity="0.9"
+              />
+              <path
+                d="M 20 -45 Q 24 -20, 14 -5 Q 4 -22, 8 -45 Z"
+                fill="#ffffff"
+                stroke={STROKE}
+                strokeWidth="3"
+                strokeLinejoin="round"
+                opacity="0.9"
+              />
+              {/* highlights */}
+              <path d="M -50 -38 L -50 40" stroke="#ffffff" strokeWidth="4" strokeLinecap="round" opacity="0.7" />
+              <path d="M -25 -68 L 80 -68" stroke="#ffffff" strokeWidth="3" strokeLinecap="round" opacity="0.6" />
+            </g>
+          )}
+        </svg>
+
         {/* Timer text overlay */}
         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
           <span className="text-5xl font-display tabular-nums drop-shadow-sm">{fmt(seconds)}</span>
