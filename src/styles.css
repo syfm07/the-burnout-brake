@@ -306,6 +306,46 @@
   animation: float-up linear infinite;
 }
 
+/* Ocean: swimming fish */
+@keyframes swim-right {
+  0% { transform: translateX(-15vw); }
+  100% { transform: translateX(115vw); }
+}
+@keyframes swim-left {
+  0% { transform: translateX(115vw) scaleX(-1); }
+  100% { transform: translateX(-15vw) scaleX(-1); }
+}
+.scene-fish {
+  font-size: 28px;
+  filter: drop-shadow(0 2px 4px oklch(0.4 0.1 230 / 0.3));
+  animation: swim-right linear infinite;
+  will-change: transform;
+}
+.scene-fish.left { animation-name: swim-left; }
+
+/* Ocean: seabed (coral, starfish, seaweed) */
+.scene-seabed {
+  bottom: 0; left: 0; right: 0;
+  height: 80px;
+  display: flex; align-items: flex-end; justify-content: space-around;
+  padding: 0 4%;
+}
+.scene-seabed-item {
+  font-size: 32px;
+  filter: drop-shadow(0 -2px 4px oklch(0.4 0.1 230 / 0.25));
+  transform-origin: bottom center;
+}
+@keyframes sway {
+  0%, 100% { transform: rotate(-6deg); }
+  50% { transform: rotate(6deg); }
+}
+.scene-seabed-item.sway { animation: sway 4s ease-in-out infinite; }
+@keyframes pulse-soft {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+.scene-seabed-item.pulse-soft { animation: pulse-soft 3s ease-in-out infinite; }
+
 /* Forest: drifting leaves */
 @keyframes leaf-fall {
   0% { transform: translate(0, -10vh) rotate(0deg); opacity: 0; }
