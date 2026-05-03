@@ -287,7 +287,7 @@ function Index() {
                 Add a countdown so you can see how many days you have to prepare.
               </p>
             </div>
-            <ExamCountdown />
+            <div className="flex justify-center"><ExamCountdown /></div>
             <div className="flex gap-2">
               <Button
                 variant="ghost"
