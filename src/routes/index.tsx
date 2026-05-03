@@ -177,7 +177,7 @@ function Index() {
       <ThemeScene theme={theme} />
       <AppToaster />
 
-      <header className="w-full max-w-md flex items-center justify-between mb-8">
+      <header className="w-full max-w-6xl flex items-start justify-between gap-3 mb-8">
         <div className="flex items-center gap-2">
           <div className="h-9 w-9 rounded-2xl bg-gradient-calm grid place-items-center shadow-soft">
             <Brain className="h-5 w-5 text-primary-foreground" />
@@ -187,18 +187,21 @@ function Index() {
             <p className="text-xs text-muted-foreground">{tagline.emoji} {tagline.tag}</p>
           </div>
         </div>
-        <div className="flex items-center gap-1">
-          {tasks && (
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => { setTasks(null); setActiveIdx(0); closeOverlay(); }}
-              className="text-xs"
-            >
-              <RotateCcw className="h-3 w-3 mr-1" /> New plan
-            </Button>
-          )}
-          <ThemePicker theme={theme} onChange={setTheme} />
+        <div className="flex items-start gap-2">
+          <ExamCountdown />
+          <div className="flex items-center gap-1">
+            {tasks && (
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => { setTasks(null); setActiveIdx(0); closeOverlay(); }}
+                className="text-xs"
+              >
+                <RotateCcw className="h-3 w-3 mr-1" /> New plan
+              </Button>
+            )}
+            <ThemePicker theme={theme} onChange={setTheme} />
+          </div>
         </div>
       </header>
 
