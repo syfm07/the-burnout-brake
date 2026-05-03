@@ -127,7 +127,7 @@ function Index() {
     setStreak(newStreak);
     const earned = BADGES.find((b) => b.threshold === newStreak);
     if (earned) {
-      toast.success(`New badge unlocked: ${earned.emoji} ${earned.name}!`, { duration: 5000 });
+      toast.success(`New badge unlocked: ${earned.name}!`, { duration: 5000 });
     } else {
       toast(`Task done! 🎉 Streak: ${newStreak}`);
     }
