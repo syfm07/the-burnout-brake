@@ -8,6 +8,8 @@ import { AppToaster } from "@/components/Toaster";
 import { ThemePicker, useTheme } from "@/components/ThemePicker";
 import { ThemeScene, THEME_TAGLINES } from "@/components/ThemeScene";
 import { ModeSelector, ModeBadge, useBlockedApps, type AppMode } from "@/components/ModeSelector";
+import { StreakBadges, BADGES } from "@/components/StreakBadges";
+import { MusicPlayer } from "@/components/MusicPlayer";
 import { toast } from "sonner";
 import { Brain, CheckCircle2, Circle, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
