@@ -5,6 +5,7 @@ import { MoodPicker, type Mood } from "@/components/MoodPicker";
 import { ResetActivity } from "@/components/ResetActivity";
 import { SessionPlanner, type PlannedTask } from "@/components/SessionPlanner";
 import { AppToaster } from "@/components/Toaster";
+import { ThemePicker } from "@/components/ThemePicker";
 import { Brain, CheckCircle2, Circle, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -83,16 +84,19 @@ function Index() {
             <p className="text-xs text-muted-foreground">Study softer. Last longer.</p>
           </div>
         </div>
-        {tasks && (
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={() => { setTasks(null); setActiveIdx(0); closeOverlay(); }}
-            className="text-xs"
-          >
-            <RotateCcw className="h-3 w-3 mr-1" /> New plan
-          </Button>
-        )}
+        <div className="flex items-center gap-1">
+          {tasks && (
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => { setTasks(null); setActiveIdx(0); closeOverlay(); }}
+              className="text-xs"
+            >
+              <RotateCcw className="h-3 w-3 mr-1" /> New plan
+            </Button>
+          )}
+          <ThemePicker />
+        </div>
       </header>
 
       {!tasks ? (
