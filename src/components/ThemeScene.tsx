@@ -96,15 +96,6 @@ export function ThemeScene({ theme }: { theme: ThemeId }) {
             {f.emoji}
           </span>
         ))}
-        <div className="scene-seabed">
-          <span className="scene-seabed-item sway">🌿</span>
-          <span className="scene-seabed-item">🪸</span>
-          <span className="scene-seabed-item pulse-soft">⭐</span>
-          <span className="scene-seabed-item sway" style={{ animationDelay: "-2s" }}>🌱</span>
-          <span className="scene-seabed-item">🐚</span>
-          <span className="scene-seabed-item sway" style={{ animationDelay: "-1s" }}>🌿</span>
-          <span className="scene-seabed-item pulse-soft" style={{ animationDelay: "-1.5s" }}>🪸</span>
-        </div>
       </div>
     );
   }
