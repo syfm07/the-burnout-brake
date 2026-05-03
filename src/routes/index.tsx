@@ -143,13 +143,15 @@ function Index() {
         </section>
       ) : (
         <>
-          <section className="w-full max-w-md bg-card/80 backdrop-blur rounded-3xl p-6 shadow-pillow border border-border">
+          <section className="w-full max-w-md bg-card/80 backdrop-blur rounded-3xl p-6 shadow-pillow border border-border space-y-4">
             <StudyTimer
               task={tasks[activeIdx]}
               paused={paused}
               onCheckIn={() => setOverlay("mood")}
               onComplete={completeTask}
             />
+            <ModeBadge mode={mode} remainingMs={modeRemaining} blockedCount={blocked.length} />
+            <ModeSelector mode={mode} onStart={startMode} />
           </section>
 
           <section className="w-full max-w-md mt-5 bg-card/60 backdrop-blur rounded-3xl p-5 border border-border">
