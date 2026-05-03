@@ -57,6 +57,8 @@ export function ExamCountdown({ displayOnly = false }: { displayOnly?: boolean }
     localStorage.setItem(NOTIF_KEY, today);
   }, [exam]);
 
+  if (displayOnly && !exam) return null;
+
   if (editing || !exam) {
     return (
       <div className="bg-card/80 backdrop-blur rounded-2xl p-3 border border-border w-full max-w-[220px] space-y-2">
