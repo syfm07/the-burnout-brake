@@ -123,6 +123,14 @@ function Index() {
 
   const completeTask = () => {
     if (!tasks) return;
+    const newStreak = streak + 1;
+    setStreak(newStreak);
+    const earned = BADGES.find((b) => b.threshold === newStreak);
+    if (earned) {
+      toast.success(`New badge unlocked: ${earned.emoji} ${earned.name}!`, { duration: 5000 });
+    } else {
+      toast(`Task done! 🎉 Streak: ${newStreak}`);
+    }
     if (activeIdx + 1 < tasks.length) setActiveIdx(activeIdx + 1);
     else { setTasks(null); setActiveIdx(0); }
   };
