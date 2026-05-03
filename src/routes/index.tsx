@@ -5,7 +5,8 @@ import { MoodPicker, type Mood } from "@/components/MoodPicker";
 import { ResetActivity } from "@/components/ResetActivity";
 import { SessionPlanner, type PlannedTask } from "@/components/SessionPlanner";
 import { AppToaster } from "@/components/Toaster";
-import { ThemePicker } from "@/components/ThemePicker";
+import { ThemePicker, useTheme } from "@/components/ThemePicker";
+import { ThemeScene, THEME_TAGLINES } from "@/components/ThemeScene";
 import { Brain, CheckCircle2, Circle, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -22,11 +23,13 @@ export const Route = createFileRoute("/")({
 type Overlay = null | "mood" | "reset";
 
 function Index() {
+  const { theme, setTheme } = useTheme();
   const [tasks, setTasks] = useState<PlannedTask[] | null>(null);
   const [activeIdx, setActiveIdx] = useState(0);
   const [overlay, setOverlay] = useState<Overlay>(null);
   const [mood, setMood] = useState<Mood | null>(null);
   const [now, setNow] = useState(() => new Date());
+  const tagline = THEME_TAGLINES[theme];
 
   // Re-tick the schedule clock so upcoming start times reflect real time
   useEffect(() => {
@@ -72,6 +75,7 @@ function Index() {
 
   return (
     <main className="min-h-screen flex flex-col items-center px-4 py-10">
+      <ThemeScene theme={theme} />
       <AppToaster />
 
       <header className="w-full max-w-md flex items-center justify-between mb-8">
@@ -81,7 +85,7 @@ function Index() {
           </div>
           <div>
             <h1 className="text-lg leading-tight">The Burnout Brake</h1>
-            <p className="text-xs text-muted-foreground">Study softer. Last longer.</p>
+            <p className="text-xs text-muted-foreground">{tagline.emoji} {tagline.tag}</p>
           </div>
         </div>
         <div className="flex items-center gap-1">
@@ -95,7 +99,7 @@ function Index() {
               <RotateCcw className="h-3 w-3 mr-1" /> New plan
             </Button>
           )}
-          <ThemePicker />
+          <ThemePicker theme={theme} onChange={setTheme} />
         </div>
       </header>
 
