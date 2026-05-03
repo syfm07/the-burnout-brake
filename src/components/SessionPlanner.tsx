@@ -11,8 +11,13 @@ export type PlannedTask = {
 
 type Draft = { id: string; name: string; minutes: string };
 
+const makeId = () =>
+  typeof crypto !== "undefined" && "randomUUID" in crypto
+    ? crypto.randomUUID()
+    : `id-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+
 const newDraft = (): Draft => ({
-  id: crypto.randomUUID(),
+  id: makeId(),
   name: "",
   minutes: "25",
 });
