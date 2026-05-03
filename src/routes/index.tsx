@@ -4,7 +4,7 @@ import { StudyTimer } from "@/components/StudyTimer";
 import { MoodPicker, type Mood } from "@/components/MoodPicker";
 import { ResetActivity } from "@/components/ResetActivity";
 import { AppToaster } from "@/components/Toaster";
-import { Brain } from "lucide-react";
+import { Brain, X } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -16,18 +16,21 @@ export const Route = createFileRoute("/")({
   }),
 });
 
-type View = "timer" | "mood" | "reset";
+type Overlay = null | "mood" | "reset";
 
 function Index() {
-  const [view, setView] = useState<View>("timer");
+  const [overlay, setOverlay] = useState<Overlay>(null);
   const [mood, setMood] = useState<Mood | null>(null);
 
-  // Auto check-in every hour while on the timer
+  // Auto check-in every 30 seconds (testing mode)
   useEffect(() => {
-    if (view !== "timer") return;
-    const t = window.setTimeout(() => setView("mood"), 60 * 60 * 1000);
-    return () => window.clearTimeout(t);
-  }, [view]);
+    const i = window.setInterval(() => {
+      setOverlay((cur) => (cur === null ? "mood" : cur));
+    }, 30 * 1000);
+    return () => window.clearInterval(i);
+  }, []);
+
+  const closeOverlay = () => { setOverlay(null); setMood(null); };
 
   return (
     <main className="min-h-screen flex flex-col items-center px-4 py-10">
@@ -46,20 +49,36 @@ function Index() {
       </header>
 
       <section className="w-full max-w-md bg-card/80 backdrop-blur rounded-3xl p-7 shadow-pillow border border-border">
-        {view === "timer" && <StudyTimer onCheckIn={() => setView("mood")} />}
-        {view === "mood" && (
-          <MoodPicker
-            onPick={(m) => { setMood(m); setView("reset"); }}
-          />
-        )}
-        {view === "reset" && mood && (
-          <ResetActivity mood={mood} onDone={() => setView("timer")} />
-        )}
+        <StudyTimer onCheckIn={() => setOverlay("mood")} />
       </section>
 
       <footer className="mt-8 text-xs text-muted-foreground text-center max-w-sm">
         Built with care for high-school students. You're allowed to rest.
       </footer>
+
+      {overlay !== null && (
+        <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur-md overflow-y-auto">
+          <button
+            onClick={closeOverlay}
+            aria-label="Exit check-in"
+            className="fixed top-3 right-3 h-7 w-7 rounded-full bg-muted/70 hover:bg-muted text-muted-foreground hover:text-foreground grid place-items-center transition-colors z-10"
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+          <div className="min-h-screen flex items-center justify-center p-6">
+            <div className="w-full max-w-md">
+              {overlay === "mood" && (
+                <MoodPicker
+                  onPick={(m) => { setMood(m); setOverlay("reset"); }}
+                />
+              )}
+              {overlay === "reset" && mood && (
+                <ResetActivity mood={mood} onDone={closeOverlay} />
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
