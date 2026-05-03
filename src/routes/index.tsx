@@ -33,6 +33,38 @@ function Index() {
   const [now, setNow] = useState(() => new Date());
   const tagline = THEME_TAGLINES[theme];
 
+  // App-blocking modes
+  const { blocked } = useBlockedApps();
+  const [mode, setMode] = useState<AppMode>("off");
+  const [modeEndsAt, setModeEndsAt] = useState<number | null>(null);
+  const [modeRemaining, setModeRemaining] = useState(0);
+  const stressedSinceRef = useRef<number | null>(null);
+
+  const startMode = (m: "focus" | "recovery") => {
+    const dur = m === "focus" ? 25 * 60_000 : 10 * 60_000;
+    setMode(m);
+    setModeEndsAt(Date.now() + dur);
+    setModeRemaining(dur);
+    toast.success(m === "focus" ? "Focus Mode started — apps blocked" : "Recovery Mode — enjoy your break");
+  };
+
+  useEffect(() => {
+    if (mode === "off" || modeEndsAt === null) return;
+    const i = window.setInterval(() => {
+      const left = modeEndsAt - Date.now();
+      if (left <= 0) {
+        setMode("off");
+        setModeEndsAt(null);
+        setModeRemaining(0);
+        toast(mode === "focus" ? "Focus session complete 🎉" : "Break's over — back to it");
+        window.clearInterval(i);
+      } else {
+        setModeRemaining(left);
+      }
+    }, 1000);
+    return () => window.clearInterval(i);
+  }, [mode, modeEndsAt]);
+
   // Re-tick the schedule clock so upcoming start times reflect real time
   useEffect(() => {
     if (!tasks) return;
