@@ -125,6 +125,15 @@ export function SessionPlanner({ onStart }: { onStart: (tasks: PlannedTask[]) =>
         </div>
       )}
 
+      {hasLongTask && (
+        <div className="bg-peach/40 border border-peach rounded-2xl p-4 text-sm space-y-1">
+          <p className="font-semibold">🧠 Long focus session ahead</p>
+          <p className="text-muted-foreground text-xs">
+            Sessions over 3 hours can drain you. If you're sure, that's okay — just remember to breathe and stretch. You can continue.
+          </p>
+        </div>
+      )}
+
       <Button
         size="lg"
         onClick={handleStart}
