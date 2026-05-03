@@ -135,6 +135,14 @@ function Index() {
     setActiveIdx(0);
   };
 
+  // Show exam-countdown prompt on the landing/planner page once per visit
+  useEffect(() => {
+    if (!tasks && !exam && !examPromptDismissed) {
+      const t = window.setTimeout(() => setShowExamPrompt(true), 600);
+      return () => window.clearTimeout(t);
+    }
+  }, [tasks, exam, examPromptDismissed]);
+
   return (
     <main className="min-h-screen flex flex-col items-center px-4 py-10">
       <ThemeScene theme={theme} />
