@@ -66,6 +66,12 @@ export function ThemeScene({ theme }: { theme: ThemeId }) {
   }
 
   if (theme === "ocean") {
+    const fish = [
+      { emoji: "🐠", top: "22%", dir: "right", duration: "22s", delay: "-4s" },
+      { emoji: "🐟", top: "38%", dir: "left", duration: "28s", delay: "-12s" },
+      { emoji: "🐡", top: "55%", dir: "right", duration: "34s", delay: "-20s" },
+      { emoji: "🦈", top: "68%", dir: "left", duration: "40s", delay: "-8s" },
+    ];
     return (
       <div className="theme-scene" aria-hidden>
         {items.bubbles.map((b) => (
@@ -81,6 +87,24 @@ export function ThemeScene({ theme }: { theme: ThemeId }) {
             }}
           />
         ))}
+        {fish.map((f, i) => (
+          <span
+            key={`fish-${i}`}
+            className={`scene-fish ${f.dir === "left" ? "left" : ""}`}
+            style={{ top: f.top, animationDuration: f.duration, animationDelay: f.delay }}
+          >
+            {f.emoji}
+          </span>
+        ))}
+        <div className="scene-seabed">
+          <span className="scene-seabed-item sway">🌿</span>
+          <span className="scene-seabed-item">🪸</span>
+          <span className="scene-seabed-item pulse-soft">⭐</span>
+          <span className="scene-seabed-item sway" style={{ animationDelay: "-2s" }}>🌱</span>
+          <span className="scene-seabed-item">🐚</span>
+          <span className="scene-seabed-item sway" style={{ animationDelay: "-1s" }}>🌿</span>
+          <span className="scene-seabed-item pulse-soft" style={{ animationDelay: "-1.5s" }}>🪸</span>
+        </div>
       </div>
     );
   }
