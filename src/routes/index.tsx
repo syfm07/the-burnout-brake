@@ -8,6 +8,8 @@ import { AppToaster } from "@/components/Toaster";
 import { ThemePicker, useTheme } from "@/components/ThemePicker";
 import { ThemeScene, THEME_TAGLINES } from "@/components/ThemeScene";
 import { ModeSelector, ModeBadge, useBlockedApps, type AppMode } from "@/components/ModeSelector";
+import { StreakBadges, BADGES } from "@/components/StreakBadges";
+import { MusicPlayer } from "@/components/MusicPlayer";
 import { toast } from "sonner";
 import { Brain, CheckCircle2, Circle, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -38,14 +40,32 @@ function Index() {
   const [mode, setMode] = useState<AppMode>("off");
   const [modeEndsAt, setModeEndsAt] = useState<number | null>(null);
   const [modeRemaining, setModeRemaining] = useState(0);
+  const [timerStartSignal, setTimerStartSignal] = useState(0);
+  const [timerResetSignal, setTimerResetSignal] = useState(0);
   const stressedSinceRef = useRef<number | null>(null);
+
+  // Streak + badges
+  const [streak, setStreak] = useState<number>(() => {
+    if (typeof window === "undefined") return 0;
+    const v = localStorage.getItem("burnout-brake-streak");
+    return v ? parseInt(v, 10) || 0 : 0;
+  });
+  useEffect(() => {
+    localStorage.setItem("burnout-brake-streak", String(streak));
+  }, [streak]);
 
   const startMode = (m: "focus" | "recovery") => {
     const dur = m === "focus" ? 25 * 60_000 : 10 * 60_000;
     setMode(m);
     setModeEndsAt(Date.now() + dur);
     setModeRemaining(dur);
-    toast.success(m === "focus" ? "Focus Mode started — apps blocked" : "Recovery Mode — enjoy your break");
+    if (m === "focus") {
+      setTimerStartSignal((s) => s + 1);
+      toast.success("Focus Mode started — timer running, apps blocked");
+    } else {
+      setTimerResetSignal((s) => s + 1);
+      toast.success("Recovery Mode — timer reset, enjoy your break");
+    }
   };
 
   useEffect(() => {
@@ -103,6 +123,14 @@ function Index() {
 
   const completeTask = () => {
     if (!tasks) return;
+    const newStreak = streak + 1;
+    setStreak(newStreak);
+    const earned = BADGES.find((b) => b.threshold === newStreak);
+    if (earned) {
+      toast.success(`New badge unlocked: ${earned.emoji} ${earned.name}!`, { duration: 5000 });
+    } else {
+      toast(`Task done! 🎉 Streak: ${newStreak}`);
+    }
     if (activeIdx + 1 < tasks.length) setActiveIdx(activeIdx + 1);
     else { setTasks(null); setActiveIdx(0); }
   };
@@ -149,10 +177,20 @@ function Index() {
               paused={paused}
               onCheckIn={() => setOverlay("mood")}
               onComplete={completeTask}
+              autoStartSignal={timerStartSignal}
+              resetSignal={timerResetSignal}
             />
             <ModeBadge mode={mode} remainingMs={modeRemaining} blockedCount={blocked.length} />
             <ModeSelector mode={mode} onStart={startMode} />
           </section>
+
+          <div className="w-full max-w-md mt-5">
+            <StreakBadges streak={streak} />
+          </div>
+
+          <div className="w-full max-w-md mt-5">
+            <MusicPlayer />
+          </div>
 
           <section className="w-full max-w-md mt-5 bg-card/60 backdrop-blur rounded-3xl p-5 border border-border">
             <h3 className="text-sm font-semibold mb-3 text-muted-foreground uppercase tracking-wider">
