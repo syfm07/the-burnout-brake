@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Pause, Play, SkipForward, HeartHandshake, CheckCircle2 } from "lucide-react";
+import { Pause, Play, SkipForward, HeartHandshake, CheckCircle2, ShieldAlert } from "lucide-react";
 import type { PlannedTask } from "./SessionPlanner";
 
 function fmt(s: number) {
@@ -9,61 +9,130 @@ function fmt(s: number) {
   return `${m}:${ss}`;
 }
 
+const BLOCKED_APPS = ["TikTok", "Instagram", "YouTube", "Twitter / X", "Snapchat", "Reddit"];
+
 export function StudyTimer({
   task,
   paused,
   onCheckIn,
   onComplete,
-  autoStartSignal = 0,
-  resetSignal = 0,
 }: {
   task: PlannedTask;
   paused: boolean;
   onCheckIn: () => void;
   onComplete: () => void;
-  autoStartSignal?: number;
-  resetSignal?: number;
 }) {
   const total = task.minutes * 60;
   const [seconds, setSeconds] = useState(total);
   const [running, setRunning] = useState(false);
   const ref = useRef<number | null>(null);
 
+  // Distraction tracking
+  const [pauseCount, setPauseCount] = useState(0);
+  const [tabSwitches, setTabSwitches] = useState(0);
+  const [showDistractionPrompt, setShowDistractionPrompt] = useState(false);
+  const [showAwayPrompt, setShowAwayPrompt] = useState(false);
+  const [resetSeconds, setResetSeconds] = useState<number | null>(null);
+  const distractedShownRef = useRef(false);
+
   // Reset whenever the active task changes
   useEffect(() => {
     setSeconds(total);
     setRunning(false);
+    setPauseCount(0);
+    setTabSwitches(0);
+    distractedShownRef.current = false;
   }, [task.id, total]);
 
-  // Auto-start when Focus Mode kicks in
+  // Main countdown
   useEffect(() => {
-    if (autoStartSignal > 0) {
-      setSeconds(total);
-      setRunning(true);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [autoStartSignal]);
-
-  // Reset when Recovery Mode kicks in
-  useEffect(() => {
-    if (resetSignal > 0) {
-      setSeconds(total);
-      setRunning(false);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [resetSignal]);
-
-  useEffect(() => {
-    if (!running || paused) return;
+    if (!running || paused || resetSeconds !== null) return;
     ref.current = window.setInterval(() => {
       setSeconds((s) => (s > 0 ? s - 1 : 0));
     }, 1000);
     return () => { if (ref.current) window.clearInterval(ref.current); };
-  }, [running, paused]);
+  }, [running, paused, resetSeconds]);
 
   useEffect(() => {
     if (seconds === 0) setRunning(false);
   }, [seconds]);
+
+  // 2-minute reset countdown
+  useEffect(() => {
+    if (resetSeconds === null) return;
+    if (resetSeconds <= 0) { setResetSeconds(null); return; }
+    const id = window.setInterval(() => {
+      setResetSeconds((s) => (s === null ? null : s - 1));
+    }, 1000);
+    return () => window.clearInterval(id);
+  }, [resetSeconds]);
+
+  // Tab/app away detection — auto-pause + prompt
+  useEffect(() => {
+    const onVis = () => {
+      if (document.hidden && running) {
+        setRunning(false);
+        setShowAwayPrompt(true);
+        setTabSwitches((n) => {
+          const next = n + 1;
+          if (next >= 2 && !distractedShownRef.current) {
+            distractedShownRef.current = true;
+            setShowDistractionPrompt(true);
+          }
+          return next;
+        });
+      }
+    };
+    document.addEventListener("visibilitychange", onVis);
+    return () => document.removeEventListener("visibilitychange", onVis);
+  }, [running]);
+
+  // Fullscreen on start
+  const enterFullscreen = async () => {
+    try {
+      if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
+        await document.documentElement.requestFullscreen();
+      }
+    } catch { /* ignore */ }
+  };
+
+  const handleStartPause = () => {
+    if (running) {
+      // Pausing
+      setRunning(false);
+      setPauseCount((n) => {
+        const next = n + 1;
+        if (next >= 3 && !distractedShownRef.current) {
+          distractedShownRef.current = true;
+          setShowDistractionPrompt(true);
+        }
+        return next;
+      });
+    } else {
+      enterFullscreen();
+      setRunning(true);
+    }
+  };
+
+  const acceptReset = () => {
+    setShowDistractionPrompt(false);
+    setRunning(false);
+    setResetSeconds(120);
+  };
+
+  const declineReset = () => {
+    setShowDistractionPrompt(false);
+    distractedShownRef.current = false;
+    setPauseCount(0);
+    setTabSwitches(0);
+    if (seconds > 0) setRunning(true);
+  };
+
+  const dismissAway = () => {
+    setShowAwayPrompt(false);
+    if (seconds > 0) setRunning(true);
+    enterFullscreen();
+  };
 
   const progress = 1 - seconds / total;
   const C = 2 * Math.PI * 130;
@@ -96,6 +165,13 @@ export function StudyTimer({
         </div>
       </div>
 
+      {running && (
+        <div className="flex items-center gap-2 text-xs text-muted-foreground bg-secondary/40 rounded-full px-3 py-1">
+          <ShieldAlert className="h-3 w-3 text-primary" />
+          <span>Distraction shield on · {BLOCKED_APPS.join(", ")} muted</span>
+        </div>
+      )}
+
       <div className="flex gap-3 flex-wrap justify-center">
         {done ? (
           <Button size="lg" onClick={onComplete} className="rounded-2xl px-6 shadow-pillow">
@@ -106,30 +182,18 @@ export function StudyTimer({
           <>
             <Button
               size="lg"
-              onClick={() => setRunning((r) => !r)}
+              onClick={handleStartPause}
               disabled={paused}
               className="rounded-2xl px-8 shadow-pillow"
             >
               {running ? <Pause className="mr-2 h-4 w-4" /> : <Play className="mr-2 h-4 w-4" />}
               {running ? "Pause" : "Start"}
             </Button>
-            <Button
-              size="lg"
-              variant="secondary"
-              onClick={onComplete}
-              className="rounded-2xl"
-              title="Mark done early"
-            >
+            <Button size="lg" variant="secondary" onClick={onComplete} className="rounded-2xl" title="Mark done early">
               <CheckCircle2 className="h-4 w-4 mr-1" />
               Done
             </Button>
-            <Button
-              size="lg"
-              variant="ghost"
-              onClick={onComplete}
-              className="rounded-2xl"
-              title="Skip to next task"
-            >
+            <Button size="lg" variant="ghost" onClick={onComplete} className="rounded-2xl" title="Skip to next task">
               <SkipForward className="h-4 w-4" />
             </Button>
           </>
@@ -143,6 +207,45 @@ export function StudyTimer({
         <HeartHandshake className="h-4 w-4 text-primary group-hover:scale-110 transition-transform" />
         Need a check-in? Tap here anytime.
       </button>
+
+      {/* Distraction reset prompt */}
+      {showDistractionPrompt && resetSeconds === null && (
+        <div className="fixed inset-0 z-[60] bg-background/90 backdrop-blur-md flex items-center justify-center p-6">
+          <div className="bg-card rounded-3xl p-6 shadow-pillow border border-border max-w-sm w-full space-y-4 text-center">
+            <h3 className="text-lg font-semibold">You seem distracted 🌿</h3>
+            <p className="text-sm text-muted-foreground">Want a 2-minute reset? Breathe, stretch, sip some water.</p>
+            <div className="flex gap-2">
+              <Button variant="ghost" className="flex-1 rounded-2xl" onClick={declineReset}>No, keep going</Button>
+              <Button className="flex-1 rounded-2xl" onClick={acceptReset}>Yes, 2-min reset</Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 2-minute reset countdown */}
+      {resetSeconds !== null && (
+        <div className="fixed inset-0 z-[60] bg-background/95 backdrop-blur-md flex items-center justify-center p-6">
+          <div className="bg-card rounded-3xl p-8 shadow-pillow border border-border max-w-sm w-full space-y-4 text-center">
+            <p className="text-xs uppercase tracking-wider text-muted-foreground">Quick reset</p>
+            <div className="text-6xl font-display tabular-nums">{fmt(resetSeconds)}</div>
+            <p className="text-sm text-muted-foreground">Close your eyes. The main timer is paused.</p>
+            <Button variant="ghost" className="rounded-2xl" onClick={() => { setResetSeconds(null); setRunning(true); }}>
+              Skip reset
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Away prompt */}
+      {showAwayPrompt && (
+        <div className="fixed inset-0 z-[60] bg-background/90 backdrop-blur-md flex items-center justify-center p-6">
+          <div className="bg-card rounded-3xl p-6 shadow-pillow border border-border max-w-sm w-full space-y-4 text-center">
+            <h3 className="text-lg font-semibold">Still studying? 💭</h3>
+            <p className="text-sm text-muted-foreground">Your timer paused while you were away. Come back when ready.</p>
+            <Button className="w-full rounded-2xl" onClick={dismissAway}>I'm back</Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
