@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { StudyTimer } from "@/components/StudyTimer";
 import { MoodPicker, type Mood } from "@/components/MoodPicker";
 import { ResetActivity } from "@/components/ResetActivity";
@@ -7,10 +7,9 @@ import { SessionPlanner, type PlannedTask } from "@/components/SessionPlanner";
 import { AppToaster } from "@/components/Toaster";
 import { ThemePicker, useTheme } from "@/components/ThemePicker";
 import { ThemeScene, THEME_TAGLINES } from "@/components/ThemeScene";
-import { ModeSelector, ModeBadge, useBlockedApps, type AppMode } from "@/components/ModeSelector";
 import { StreakBadges, BADGES } from "@/components/StreakBadges";
 import { MusicPlayer } from "@/components/MusicPlayer";
-import { ExamCountdown } from "@/components/ExamCountdown";
+import { ExamCountdown, useExam } from "@/components/ExamCountdown";
 import { PeakHours, logCompletion } from "@/components/PeakHours";
 import { BreakTimer, breakMinutesFor } from "@/components/BreakTimer";
 import { AllDoneScreen } from "@/components/AllDoneScreen";
