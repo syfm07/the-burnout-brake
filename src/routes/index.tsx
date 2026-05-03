@@ -127,7 +127,7 @@ function Index() {
     setStreak(newStreak);
     const earned = BADGES.find((b) => b.threshold === newStreak);
     if (earned) {
-      toast.success(`New badge unlocked: ${earned.emoji} ${earned.name}!`, { duration: 5000 });
+      toast.success(`New badge unlocked: ${earned.name}!`, { duration: 5000 });
     } else {
       toast(`Task done! 🎉 Streak: ${newStreak}`);
     }
@@ -170,29 +170,9 @@ function Index() {
           <SessionPlanner onStart={(t) => { setTasks(t); setActiveIdx(0); }} />
         </section>
       ) : (
-        <>
-          <section className="w-full max-w-md bg-card/80 backdrop-blur rounded-3xl p-6 shadow-pillow border border-border space-y-4">
-            <StudyTimer
-              task={tasks[activeIdx]}
-              paused={paused}
-              onCheckIn={() => setOverlay("mood")}
-              onComplete={completeTask}
-              autoStartSignal={timerStartSignal}
-              resetSignal={timerResetSignal}
-            />
-            <ModeBadge mode={mode} remainingMs={modeRemaining} blockedCount={blocked.length} />
-            <ModeSelector mode={mode} onStart={startMode} />
-          </section>
-
-          <div className="w-full max-w-md mt-5">
-            <StreakBadges streak={streak} />
-          </div>
-
-          <div className="w-full max-w-md mt-5">
-            <MusicPlayer />
-          </div>
-
-          <section className="w-full max-w-md mt-5 bg-card/60 backdrop-blur rounded-3xl p-5 border border-border">
+        <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-[1fr_minmax(0,28rem)_1fr] gap-5 items-start">
+          {/* LEFT — Schedule */}
+          <section className="bg-card/60 backdrop-blur rounded-3xl p-5 border border-border lg:order-1 order-2">
             <h3 className="text-sm font-semibold mb-3 text-muted-foreground uppercase tracking-wider">
               Today's schedule
             </h3>
@@ -225,7 +205,27 @@ function Index() {
               })}
             </ol>
           </section>
-        </>
+
+          {/* CENTER — Timer */}
+          <section className="bg-card/80 backdrop-blur rounded-3xl p-6 shadow-pillow border border-border space-y-4 lg:order-2 order-1">
+            <StudyTimer
+              task={tasks[activeIdx]}
+              paused={paused}
+              onCheckIn={() => setOverlay("mood")}
+              onComplete={completeTask}
+              autoStartSignal={timerStartSignal}
+              resetSignal={timerResetSignal}
+            />
+            <ModeBadge mode={mode} remainingMs={modeRemaining} blockedCount={blocked.length} />
+            <ModeSelector mode={mode} onStart={startMode} />
+          </section>
+
+          {/* RIGHT — Streak + Music */}
+          <div className="space-y-5 lg:order-3 order-3">
+            <StreakBadges streak={streak} />
+            <MusicPlayer />
+          </div>
+        </div>
       )}
 
       <footer className="mt-8 text-xs text-muted-foreground text-center max-w-sm">

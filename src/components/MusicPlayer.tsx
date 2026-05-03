@@ -6,9 +6,13 @@ import { Input } from "@/components/ui/input";
 type Source = { kind: "youtube" | "spotify"; id: string; label: string };
 
 const PRESETS: Source[] = [
-  { kind: "youtube", id: "jfKfPfyJRdk", label: "Lofi Girl — beats to relax/study" },
-  { kind: "youtube", id: "4xDzrJKXOOY", label: "Synthwave radio — chill" },
-  { kind: "spotify", id: "playlist/37i9dQZF1DWWQRwui0ExPn", label: "Spotify · Lofi Beats" },
+  { kind: "youtube", id: "jfKfPfyJRdk", label: "YouTube · Lofi Girl — beats to relax/study" },
+  { kind: "youtube", id: "4xDzrJKXOOY", label: "YouTube · Synthwave radio — chill" },
+  { kind: "youtube", id: "5qap5aO4i9A", label: "YouTube · Chillhop Essentials" },
+  { kind: "spotify", id: "playlist/37i9dQZF1DWWQRwui0ExPn", label: "Spotify · Lofi Beats (default)" },
+  { kind: "spotify", id: "playlist/37i9dQZF1DX8Uebhn9wzrS", label: "Spotify · Chill Lofi Study Beats" },
+  { kind: "spotify", id: "playlist/37i9dQZF1DX3Ogo9pFvBkY", label: "Spotify · Ambient Relaxation" },
+  { kind: "spotify", id: "playlist/37i9dQZF1DWZeKCadgRdKQ", label: "Spotify · Deep Focus" },
 ];
 
 const STORAGE = "burnout-brake-music";
@@ -87,23 +91,27 @@ export function MusicPlayer() {
       )}
 
       {open && (
-        <div className="space-y-2">
-          <div className="space-y-1">
-            {PRESETS.map((p) => (
-              <button
-                key={p.kind + p.id}
-                onClick={() => choose(p)}
-                className={`w-full text-left text-xs p-2 rounded-xl border transition-colors ${
-                  source.kind === p.kind && source.id === p.id
-                    ? "bg-primary/10 border-primary/30"
-                    : "bg-secondary/40 border-transparent hover:bg-secondary/60"
-                }`}
-              >
-                <span className="mr-1">{p.kind === "youtube" ? "▶️" : "🎧"}</span>
-                {p.label}
-              </button>
-            ))}
-          </div>
+        <div className="space-y-3">
+          {(["youtube", "spotify"] as const).map((kind) => (
+            <div key={kind} className="space-y-1">
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold px-1">
+                {kind === "youtube" ? "▶️ YouTube" : "🎧 Spotify"}
+              </p>
+              {PRESETS.filter((p) => p.kind === kind).map((p) => (
+                <button
+                  key={p.kind + p.id}
+                  onClick={() => choose(p)}
+                  className={`w-full text-left text-xs p-2 rounded-xl border transition-colors ${
+                    source.kind === p.kind && source.id === p.id
+                      ? "bg-primary/10 border-primary/30"
+                      : "bg-secondary/40 border-transparent hover:bg-secondary/60"
+                  }`}
+                >
+                  {p.label.replace(/^(YouTube|Spotify) · /, "")}
+                </button>
+              ))}
+            </div>
+          ))}
           <div className="flex gap-2">
             <Input
               placeholder="Paste YouTube or Spotify link…"
@@ -115,7 +123,7 @@ export function MusicPlayer() {
           </div>
           {error && <p className="text-xs text-destructive">{error}</p>}
           <p className="text-[10px] text-muted-foreground">
-            Tip: Spotify embed needs you to be logged into Spotify in this browser to play full tracks.
+            Tip: Spotify needs you to be logged in to this browser to play full tracks.
           </p>
         </div>
       )}
