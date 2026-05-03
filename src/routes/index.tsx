@@ -99,7 +99,7 @@ function Index() {
               <RotateCcw className="h-3 w-3 mr-1" /> New plan
             </Button>
           )}
-          <ThemePicker />
+          <ThemePicker theme={theme} onChange={setTheme} />
         </div>
       </header>
 
