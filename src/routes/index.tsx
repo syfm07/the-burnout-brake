@@ -40,14 +40,32 @@ function Index() {
   const [mode, setMode] = useState<AppMode>("off");
   const [modeEndsAt, setModeEndsAt] = useState<number | null>(null);
   const [modeRemaining, setModeRemaining] = useState(0);
+  const [timerStartSignal, setTimerStartSignal] = useState(0);
+  const [timerResetSignal, setTimerResetSignal] = useState(0);
   const stressedSinceRef = useRef<number | null>(null);
+
+  // Streak + badges
+  const [streak, setStreak] = useState<number>(() => {
+    if (typeof window === "undefined") return 0;
+    const v = localStorage.getItem("burnout-brake-streak");
+    return v ? parseInt(v, 10) || 0 : 0;
+  });
+  useEffect(() => {
+    localStorage.setItem("burnout-brake-streak", String(streak));
+  }, [streak]);
 
   const startMode = (m: "focus" | "recovery") => {
     const dur = m === "focus" ? 25 * 60_000 : 10 * 60_000;
     setMode(m);
     setModeEndsAt(Date.now() + dur);
     setModeRemaining(dur);
-    toast.success(m === "focus" ? "Focus Mode started — apps blocked" : "Recovery Mode — enjoy your break");
+    if (m === "focus") {
+      setTimerStartSignal((s) => s + 1);
+      toast.success("Focus Mode started — timer running, apps blocked");
+    } else {
+      setTimerResetSignal((s) => s + 1);
+      toast.success("Recovery Mode — timer reset, enjoy your break");
+    }
   };
 
   useEffect(() => {
