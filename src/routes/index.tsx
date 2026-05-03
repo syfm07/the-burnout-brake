@@ -75,6 +75,7 @@ function Index() {
 
   return (
     <main className="min-h-screen flex flex-col items-center px-4 py-10">
+      <ThemeScene theme={theme} />
       <AppToaster />
 
       <header className="w-full max-w-md flex items-center justify-between mb-8">
@@ -84,7 +85,7 @@ function Index() {
           </div>
           <div>
             <h1 className="text-lg leading-tight">The Burnout Brake</h1>
-            <p className="text-xs text-muted-foreground">Study softer. Last longer.</p>
+            <p className="text-xs text-muted-foreground">{tagline.emoji} {tagline.tag}</p>
           </div>
         </div>
         <div className="flex items-center gap-1">
