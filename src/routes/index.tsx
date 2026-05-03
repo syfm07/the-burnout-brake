@@ -275,6 +275,22 @@ function Index() {
         Built with care for high-school students. You're allowed to rest.
       </footer>
 
+      {breakInfo && (
+        <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur-md overflow-y-auto">
+          <div className="min-h-screen flex items-center justify-center p-6">
+            <BreakTimer minutes={breakInfo.minutes} nextTaskName={breakInfo.nextName} onContinue={finishBreak} />
+          </div>
+        </div>
+      )}
+
+      {allDone && (
+        <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur-md overflow-y-auto">
+          <div className="min-h-screen flex items-center justify-center p-6">
+            <AllDoneScreen onRest={handleRest} onContinue={handleAddMore} onHome={handleHome} />
+          </div>
+        </div>
+      )}
+
       {overlay !== null && (
         <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur-md overflow-y-auto">
           <div className="min-h-screen flex items-center justify-center p-6">
