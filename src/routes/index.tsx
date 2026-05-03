@@ -279,6 +279,36 @@ function Index() {
           </div>
         </div>
       )}
+
+      {showExamPrompt && !exam && !tasks && (
+        <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-md flex items-center justify-center p-6">
+          <div className="bg-card rounded-3xl p-6 shadow-pillow border border-border max-w-sm w-full space-y-4">
+            <div className="text-center space-y-1">
+              <h3 className="text-lg font-semibold">Got an exam coming up? 📚</h3>
+              <p className="text-xs text-muted-foreground">
+                Add a countdown so you can see how many days you have to prepare.
+              </p>
+            </div>
+            <ExamCountdown />
+            <div className="flex gap-2">
+              <Button
+                variant="ghost"
+                className="flex-1 rounded-2xl text-xs"
+                onClick={() => { setShowExamPrompt(false); setExamPromptDismissed(true); }}
+              >
+                Skip for now
+              </Button>
+              <Button
+                className="flex-1 rounded-2xl text-xs"
+                onClick={() => setShowExamPrompt(false)}
+                disabled={!exam}
+              >
+                Done
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
