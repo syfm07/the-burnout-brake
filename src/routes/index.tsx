@@ -56,13 +56,6 @@ function Index() {
   }, [streak]);
 
 
-  // Re-tick the schedule clock so upcoming start times reflect real time
-  useEffect(() => {
-    if (!tasks) return;
-    const i = window.setInterval(() => setNow(new Date()), 30 * 1000);
-    return () => window.clearInterval(i);
-  }, [tasks]);
-
   // Pause the running timer whenever a non-focused mood is picked
   const paused = overlay === "reset" && mood !== null && mood !== "focused";
 
@@ -79,7 +72,7 @@ function Index() {
 
   const schedule = useMemo(() => {
     if (!tasks) return [];
-    let cursor = new Date(now);
+    let cursor = new Date(activeStart);
     return tasks.map((t, i) => {
       if (i < activeIdx) return { task: t, start: null as Date | null, end: null as Date | null };
       const start = new Date(cursor);
@@ -87,7 +80,7 @@ function Index() {
       cursor = end;
       return { task: t, start, end };
     });
-  }, [tasks, activeIdx, now]);
+  }, [tasks, activeIdx, activeStart]);
 
   const fmtTime = (d: Date) =>
     d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
