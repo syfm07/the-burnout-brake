@@ -29,11 +29,11 @@ Tone: kind, direct ("you"), zero preaching. Be brief.`;
         parameters: {
           type: "object",
           properties: {
-            title: { type: "string", description: "Short, friendly name of the activity (max 6 words)." },
+            title: { type: "string", description: "Short, friendly name (max 5 words)." },
             duration_minutes: { type: "number" },
-            why_it_helps: { type: "string", description: "1-2 sentences explaining the nervous-system benefit." },
-            steps: { type: "array", items: { type: "string" }, description: "3-6 concrete steps." },
-            closing_note: { type: "string", description: "One warm sentence to send the student back to studying." },
+            why_it_helps: { type: "string", description: "ONE short sentence (max 15 words)." },
+            steps: { type: "array", items: { type: "string" }, description: "Exactly 3 steps, each max 12 words." },
+            closing_note: { type: "string", description: "One short warm sentence (max 10 words)." },
           },
           required: ["title", "duration_minutes", "why_it_helps", "steps", "closing_note"],
           additionalProperties: false,
