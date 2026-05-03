@@ -109,6 +109,20 @@ export function SessionPlanner({ onStart }: { onStart: (tasks: PlannedTask[]) =>
         </div>
       )}
 
+      {(valid.length > 5 || totalMin > 300) && (
+        <div className="bg-peach/40 border border-peach rounded-2xl p-4 text-sm space-y-2">
+          <p className="font-semibold">
+            ⚠️ You have {valid.length} high-priority task{valid.length > 1 ? "s" : ""} today
+          </p>
+          <p className="text-muted-foreground text-xs">That's a heavy load. Consider:</p>
+          <ul className="text-xs space-y-1 ml-1">
+            <li>• Postpone low-priority tasks to tomorrow</li>
+            <li>• Focus on your top 2–3 only</li>
+            <li>• Take recovery breaks between sessions</li>
+          </ul>
+        </div>
+      )}
+
       <Button
         size="lg"
         onClick={handleStart}

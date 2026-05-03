@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { StudyTimer } from "@/components/StudyTimer";
 import { MoodPicker, type Mood } from "@/components/MoodPicker";
 import { ResetActivity } from "@/components/ResetActivity";
@@ -7,6 +7,8 @@ import { SessionPlanner, type PlannedTask } from "@/components/SessionPlanner";
 import { AppToaster } from "@/components/Toaster";
 import { ThemePicker, useTheme } from "@/components/ThemePicker";
 import { ThemeScene, THEME_TAGLINES } from "@/components/ThemeScene";
+import { ModeSelector, ModeBadge, useBlockedApps, type AppMode } from "@/components/ModeSelector";
+import { toast } from "sonner";
 import { Brain, CheckCircle2, Circle, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -31,6 +33,38 @@ function Index() {
   const [now, setNow] = useState(() => new Date());
   const tagline = THEME_TAGLINES[theme];
 
+  // App-blocking modes
+  const { blocked } = useBlockedApps();
+  const [mode, setMode] = useState<AppMode>("off");
+  const [modeEndsAt, setModeEndsAt] = useState<number | null>(null);
+  const [modeRemaining, setModeRemaining] = useState(0);
+  const stressedSinceRef = useRef<number | null>(null);
+
+  const startMode = (m: "focus" | "recovery") => {
+    const dur = m === "focus" ? 25 * 60_000 : 10 * 60_000;
+    setMode(m);
+    setModeEndsAt(Date.now() + dur);
+    setModeRemaining(dur);
+    toast.success(m === "focus" ? "Focus Mode started — apps blocked" : "Recovery Mode — enjoy your break");
+  };
+
+  useEffect(() => {
+    if (mode === "off" || modeEndsAt === null) return;
+    const i = window.setInterval(() => {
+      const left = modeEndsAt - Date.now();
+      if (left <= 0) {
+        setMode("off");
+        setModeEndsAt(null);
+        setModeRemaining(0);
+        toast(mode === "focus" ? "Focus session complete 🎉" : "Break's over — back to it");
+        window.clearInterval(i);
+      } else {
+        setModeRemaining(left);
+      }
+    }, 1000);
+    return () => window.clearInterval(i);
+  }, [mode, modeEndsAt]);
+
   // Re-tick the schedule clock so upcoming start times reflect real time
   useEffect(() => {
     if (!tasks) return;
@@ -41,12 +75,12 @@ function Index() {
   // Pause the running timer whenever a non-focused mood is picked
   const paused = overlay === "reset" && mood !== null && mood !== "focused";
 
-  // Auto check-in every 30 seconds (testing) — only while a session is active
+  // Auto check-in every 10 minutes — only while a session is active
   useEffect(() => {
     if (!tasks) return;
     const i = window.setInterval(() => {
       setOverlay((cur) => (cur === null ? "mood" : cur));
-    }, 30 * 1000);
+    }, 10 * 60 * 1000);
     return () => window.clearInterval(i);
   }, [tasks]);
 
@@ -109,13 +143,15 @@ function Index() {
         </section>
       ) : (
         <>
-          <section className="w-full max-w-md bg-card/80 backdrop-blur rounded-3xl p-6 shadow-pillow border border-border">
+          <section className="w-full max-w-md bg-card/80 backdrop-blur rounded-3xl p-6 shadow-pillow border border-border space-y-4">
             <StudyTimer
               task={tasks[activeIdx]}
               paused={paused}
               onCheckIn={() => setOverlay("mood")}
               onComplete={completeTask}
             />
+            <ModeBadge mode={mode} remainingMs={modeRemaining} blockedCount={blocked.length} />
+            <ModeSelector mode={mode} onStart={startMode} />
           </section>
 
           <section className="w-full max-w-md mt-5 bg-card/60 backdrop-blur rounded-3xl p-5 border border-border">
@@ -164,7 +200,25 @@ function Index() {
             <div className="w-full max-w-md">
               {overlay === "mood" && (
                 <MoodPicker
-                  onPick={(m) => { setMood(m); setOverlay("reset"); }}
+                  onPick={(m) => {
+                    setMood(m);
+                    setOverlay("reset");
+                    if (m === "stressed") {
+                      const since = stressedSinceRef.current;
+                      const FIVE_MIN = 5 * 60_000;
+                      if (since && Date.now() - since >= FIVE_MIN) {
+                        if (mode !== "recovery") {
+                          startMode("recovery");
+                          toast("Stressed for 5+ min — apps unlocked for a break 🫶");
+                        }
+                        stressedSinceRef.current = null;
+                      } else if (!since) {
+                        stressedSinceRef.current = Date.now();
+                      }
+                    } else {
+                      stressedSinceRef.current = null;
+                    }
+                  }}
                 />
               )}
               {overlay === "reset" && mood && (

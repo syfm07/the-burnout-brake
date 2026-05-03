@@ -294,26 +294,26 @@
 
 /* Ocean: floating bubbles */
 @keyframes float-up {
-  0% { transform: translateY(110vh) scale(0.6); opacity: 0; }
-  10% { opacity: 0.8; }
-  100% { transform: translateY(-10vh) scale(1.1); opacity: 0; }
+  0% { transform: translateY(0) scale(0.6); opacity: 0; }
+  10% { opacity: 0.85; }
+  100% { transform: translateY(-110vh) scale(1.1); opacity: 0; }
 }
 .scene-bubble {
-  bottom: 0;
+  bottom: -20px;
   border-radius: 9999px;
   background: radial-gradient(circle at 30% 30%, oklch(0.98 0.03 220 / 0.9), oklch(0.7 0.13 230 / 0.3));
   border: 1px solid oklch(0.98 0.03 220 / 0.5);
   animation: float-up linear infinite;
 }
 
-/* Ocean: swimming fish */
+/* Ocean: swimming fish — emoji glyphs face left, so flip when moving right */
 @keyframes swim-right {
-  0% { transform: translateX(-15vw); }
-  100% { transform: translateX(115vw); }
+  0% { transform: translateX(-15vw) scaleX(-1); }
+  100% { transform: translateX(115vw) scaleX(-1); }
 }
 @keyframes swim-left {
-  0% { transform: translateX(115vw) scaleX(-1); }
-  100% { transform: translateX(-15vw) scaleX(-1); }
+  0% { transform: translateX(115vw); }
+  100% { transform: translateX(-15vw); }
 }
 .scene-fish {
   font-size: 28px;
@@ -322,29 +322,6 @@
   will-change: transform;
 }
 .scene-fish.left { animation-name: swim-left; }
-
-/* Ocean: seabed (coral, starfish, seaweed) */
-.scene-seabed {
-  bottom: 0; left: 0; right: 0;
-  height: 80px;
-  display: flex; align-items: flex-end; justify-content: space-around;
-  padding: 0 4%;
-}
-.scene-seabed-item {
-  font-size: 32px;
-  filter: drop-shadow(0 -2px 4px oklch(0.4 0.1 230 / 0.25));
-  transform-origin: bottom center;
-}
-@keyframes sway {
-  0%, 100% { transform: rotate(-6deg); }
-  50% { transform: rotate(6deg); }
-}
-.scene-seabed-item.sway { animation: sway 4s ease-in-out infinite; }
-@keyframes pulse-soft {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.08); }
-}
-.scene-seabed-item.pulse-soft { animation: pulse-soft 3s ease-in-out infinite; }
 
 /* Forest: drifting leaves */
 @keyframes leaf-fall {
