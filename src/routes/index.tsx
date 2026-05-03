@@ -50,14 +50,15 @@ function Index() {
 
   const schedule = useMemo(() => {
     if (!tasks) return [];
-    let cursor = new Date();
-    return tasks.map((t) => {
+    let cursor = new Date(now);
+    return tasks.map((t, i) => {
+      if (i < activeIdx) return { task: t, start: null as Date | null, end: null as Date | null };
       const start = new Date(cursor);
       const end = new Date(cursor.getTime() + t.minutes * 60_000);
       cursor = end;
       return { task: t, start, end };
     });
-  }, [tasks]);
+  }, [tasks, activeIdx, now]);
 
   const fmtTime = (d: Date) =>
     d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
