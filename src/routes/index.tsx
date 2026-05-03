@@ -4,7 +4,7 @@ import { StudyTimer } from "@/components/StudyTimer";
 import { MoodPicker, type Mood } from "@/components/MoodPicker";
 import { ResetActivity } from "@/components/ResetActivity";
 import { AppToaster } from "@/components/Toaster";
-import { Brain, X } from "lucide-react";
+import { Brain } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -58,13 +58,6 @@ function Index() {
 
       {overlay !== null && (
         <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur-md overflow-y-auto">
-          <button
-            onClick={closeOverlay}
-            aria-label="Exit check-in"
-            className="fixed top-3 right-3 h-7 w-7 rounded-full bg-muted/70 hover:bg-muted text-muted-foreground hover:text-foreground grid place-items-center transition-colors z-10"
-          >
-            <X className="h-3.5 w-3.5" />
-          </button>
           <div className="min-h-screen flex items-center justify-center p-6">
             <div className="w-full max-w-md">
               {overlay === "mood" && (
