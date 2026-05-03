@@ -10,6 +10,10 @@ import { ThemeScene, THEME_TAGLINES } from "@/components/ThemeScene";
 import { ModeSelector, ModeBadge, useBlockedApps, type AppMode } from "@/components/ModeSelector";
 import { StreakBadges, BADGES } from "@/components/StreakBadges";
 import { MusicPlayer } from "@/components/MusicPlayer";
+import { ExamCountdown } from "@/components/ExamCountdown";
+import { PeakHours, logCompletion } from "@/components/PeakHours";
+import { BreakTimer, breakMinutesFor } from "@/components/BreakTimer";
+import { AllDoneScreen } from "@/components/AllDoneScreen";
 import { toast } from "sonner";
 import { Brain, CheckCircle2, Circle, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -42,6 +46,8 @@ function Index() {
   const [modeRemaining, setModeRemaining] = useState(0);
   const [timerStartSignal, setTimerStartSignal] = useState(0);
   const [timerResetSignal, setTimerResetSignal] = useState(0);
+  const [breakInfo, setBreakInfo] = useState<{ minutes: number; nextName: string } | null>(null);
+  const [allDone, setAllDone] = useState(false);
   const stressedSinceRef = useRef<number | null>(null);
 
   // Streak + badges
@@ -61,7 +67,7 @@ function Index() {
     setModeRemaining(dur);
     if (m === "focus") {
       setTimerStartSignal((s) => s + 1);
-      toast.success("Focus Mode started — timer running, apps blocked");
+      toast.success("Focus Mode started — recovery stopped, timer running");
     } else {
       setTimerResetSignal((s) => s + 1);
       toast.success("Recovery Mode — timer reset, enjoy your break");
@@ -123,6 +129,7 @@ function Index() {
 
   const completeTask = () => {
     if (!tasks) return;
+    logCompletion();
     const newStreak = streak + 1;
     setStreak(newStreak);
     const earned = BADGES.find((b) => b.threshold === newStreak);
@@ -131,8 +138,38 @@ function Index() {
     } else {
       toast(`Task done! 🎉 Streak: ${newStreak}`);
     }
+    const finishedTask = tasks[activeIdx];
+    if (activeIdx + 1 < tasks.length) {
+      const nextTask = tasks[activeIdx + 1];
+      setBreakInfo({ minutes: breakMinutesFor(finishedTask.minutes), nextName: nextTask.name });
+    } else {
+      setAllDone(true);
+    }
+  };
+
+  const finishBreak = () => {
+    if (!tasks) return;
+    setBreakInfo(null);
     if (activeIdx + 1 < tasks.length) setActiveIdx(activeIdx + 1);
-    else { setTasks(null); setActiveIdx(0); }
+  };
+
+  const handleRest = () => {
+    setAllDone(false);
+    setTasks(null);
+    setActiveIdx(0);
+    startMode("recovery");
+  };
+
+  const handleAddMore = () => {
+    setAllDone(false);
+    setTasks(null);
+    setActiveIdx(0);
+  };
+
+  const handleHome = () => {
+    setAllDone(false);
+    setTasks(null);
+    setActiveIdx(0);
   };
 
   return (
@@ -140,7 +177,7 @@ function Index() {
       <ThemeScene theme={theme} />
       <AppToaster />
 
-      <header className="w-full max-w-md flex items-center justify-between mb-8">
+      <header className="w-full max-w-6xl flex items-start justify-between gap-3 mb-8">
         <div className="flex items-center gap-2">
           <div className="h-9 w-9 rounded-2xl bg-gradient-calm grid place-items-center shadow-soft">
             <Brain className="h-5 w-5 text-primary-foreground" />
@@ -150,18 +187,21 @@ function Index() {
             <p className="text-xs text-muted-foreground">{tagline.emoji} {tagline.tag}</p>
           </div>
         </div>
-        <div className="flex items-center gap-1">
-          {tasks && (
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => { setTasks(null); setActiveIdx(0); closeOverlay(); }}
-              className="text-xs"
-            >
-              <RotateCcw className="h-3 w-3 mr-1" /> New plan
-            </Button>
-          )}
-          <ThemePicker theme={theme} onChange={setTheme} />
+        <div className="flex items-start gap-2">
+          <ExamCountdown />
+          <div className="flex items-center gap-1">
+            {tasks && (
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => { setTasks(null); setActiveIdx(0); closeOverlay(); }}
+                className="text-xs"
+              >
+                <RotateCcw className="h-3 w-3 mr-1" /> New plan
+              </Button>
+            )}
+            <ThemePicker theme={theme} onChange={setTheme} />
+          </div>
         </div>
       </header>
 
@@ -171,40 +211,43 @@ function Index() {
         </section>
       ) : (
         <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-[1fr_minmax(0,28rem)_1fr] gap-5 items-start">
-          {/* LEFT — Schedule */}
-          <section className="bg-card/60 backdrop-blur rounded-3xl p-5 border border-border lg:order-1 order-2">
-            <h3 className="text-sm font-semibold mb-3 text-muted-foreground uppercase tracking-wider">
-              Today's schedule
-            </h3>
-            <ol className="space-y-2">
-              {schedule.map(({ task, start, end }, i) => {
-                const isActive = i === activeIdx;
-                const isDone = i < activeIdx;
-                return (
-                  <li
-                    key={task.id}
-                    className={`flex items-center gap-3 p-2 rounded-xl transition-colors ${
-                      isActive ? "bg-lavender/40" : ""
-                    }`}
-                  >
-                    {isDone ? (
-                      <CheckCircle2 className="h-4 w-4 text-sage-foreground flex-shrink-0" />
-                    ) : (
-                      <Circle className={`h-4 w-4 flex-shrink-0 ${isActive ? "text-primary" : "text-muted-foreground"}`} />
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <p className={`text-sm truncate ${isDone ? "line-through text-muted-foreground" : ""}`}>
-                        {task.name}
-                      </p>
-                      <p className="text-xs text-muted-foreground tabular-nums">
-                        {start && end ? `${fmtTime(start)} – ${fmtTime(end)} · ` : ""}{task.minutes}m
-                      </p>
-                    </div>
-                  </li>
-                );
-              })}
-            </ol>
-          </section>
+          {/* LEFT — Schedule + Peak Hours */}
+          <div className="space-y-5 lg:order-1 order-2">
+            <section className="bg-card/60 backdrop-blur rounded-3xl p-5 border border-border">
+              <h3 className="text-sm font-semibold mb-3 text-muted-foreground uppercase tracking-wider">
+                Today's schedule
+              </h3>
+              <ol className="space-y-2">
+                {schedule.map(({ task, start, end }, i) => {
+                  const isActive = i === activeIdx;
+                  const isDone = i < activeIdx;
+                  return (
+                    <li
+                      key={task.id}
+                      className={`flex items-center gap-3 p-2 rounded-xl transition-colors ${
+                        isActive ? "bg-lavender/40" : ""
+                      }`}
+                    >
+                      {isDone ? (
+                        <CheckCircle2 className="h-4 w-4 text-sage-foreground flex-shrink-0" />
+                      ) : (
+                        <Circle className={`h-4 w-4 flex-shrink-0 ${isActive ? "text-primary" : "text-muted-foreground"}`} />
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <p className={`text-sm truncate ${isDone ? "line-through text-muted-foreground" : ""}`}>
+                          {task.name}
+                        </p>
+                        <p className="text-xs text-muted-foreground tabular-nums">
+                          {start && end ? `${fmtTime(start)} – ${fmtTime(end)} · ` : ""}{task.minutes}m
+                        </p>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ol>
+            </section>
+            <PeakHours />
+          </div>
 
           {/* CENTER — Timer */}
           <section className="bg-card/80 backdrop-blur rounded-3xl p-6 shadow-pillow border border-border space-y-4 lg:order-2 order-1">
@@ -231,6 +274,22 @@ function Index() {
       <footer className="mt-8 text-xs text-muted-foreground text-center max-w-sm">
         Built with care for high-school students. You're allowed to rest.
       </footer>
+
+      {breakInfo && (
+        <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur-md overflow-y-auto">
+          <div className="min-h-screen flex items-center justify-center p-6">
+            <BreakTimer minutes={breakInfo.minutes} nextTaskName={breakInfo.nextName} onContinue={finishBreak} />
+          </div>
+        </div>
+      )}
+
+      {allDone && (
+        <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur-md overflow-y-auto">
+          <div className="min-h-screen flex items-center justify-center p-6">
+            <AllDoneScreen onRest={handleRest} onContinue={handleAddMore} onHome={handleHome} />
+          </div>
+        </div>
+      )}
 
       {overlay !== null && (
         <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur-md overflow-y-auto">
