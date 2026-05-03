@@ -54,36 +54,6 @@ function Index() {
     localStorage.setItem("burnout-brake-streak", String(streak));
   }, [streak]);
 
-  const startMode = (m: "focus" | "recovery") => {
-    const dur = m === "focus" ? 25 * 60_000 : 10 * 60_000;
-    setMode(m);
-    setModeEndsAt(Date.now() + dur);
-    setModeRemaining(dur);
-    if (m === "focus") {
-      setTimerStartSignal((s) => s + 1);
-      toast.success("Focus Mode started — recovery stopped, timer running");
-    } else {
-      setTimerResetSignal((s) => s + 1);
-      toast.success("Recovery Mode — timer reset, enjoy your break");
-    }
-  };
-
-  useEffect(() => {
-    if (mode === "off" || modeEndsAt === null) return;
-    const i = window.setInterval(() => {
-      const left = modeEndsAt - Date.now();
-      if (left <= 0) {
-        setMode("off");
-        setModeEndsAt(null);
-        setModeRemaining(0);
-        toast(mode === "focus" ? "Focus session complete 🎉" : "Break's over — back to it");
-        window.clearInterval(i);
-      } else {
-        setModeRemaining(left);
-      }
-    }, 1000);
-    return () => window.clearInterval(i);
-  }, [mode, modeEndsAt]);
 
   // Re-tick the schedule clock so upcoming start times reflect real time
   useEffect(() => {
