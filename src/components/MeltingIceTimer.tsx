@@ -19,10 +19,13 @@ export function MeltingIceTimer({
 }) {
   const p = Math.max(0, Math.min(1, progress));
 
-  // Ice geometry — a rounded block sitting in a puddle.
-  const blockTop = 60;
-  const blockBottom = 230;
-  const fullHeight = blockBottom - blockTop;
+  // Ice geometry — a square cube sitting in a puddle.
+  const cubeSize = 160;
+  const blockLeft = 80;
+  const blockRight = blockLeft + cubeSize; // 240
+  const blockTop = 70;
+  const blockBottom = blockTop + cubeSize; // 230
+  const fullHeight = cubeSize;
   // Current top of the ice (rises as it melts)
   const currentTop = blockTop + fullHeight * p;
   const iceHeight = Math.max(0, blockBottom - currentTop);
