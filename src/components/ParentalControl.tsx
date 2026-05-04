@@ -37,7 +37,7 @@ function getStats() {
 export function ParentalControl() {
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
-  const [stats, setStats] = useState(() => getStats());
+  const [stats, setStats] = useState(() => ({ today: 0, week: 0, total: 0, streak: 0, peak: "—" }));
 
   useEffect(() => {
     const stored = localStorage.getItem(EMAIL_KEY);
