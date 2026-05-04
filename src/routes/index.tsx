@@ -100,6 +100,7 @@ function Index() {
   const completeTask = () => {
     if (!tasks) return;
     logCompletion();
+    fireConfetti();
     const newStreak = streak + 1;
     setStreak(newStreak);
     const earned = BADGES.find((b) => b.threshold === newStreak);
