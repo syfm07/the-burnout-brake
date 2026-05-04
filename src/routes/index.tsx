@@ -103,6 +103,7 @@ function Index() {
     if (!tasks) return;
     logCompletion();
     fireConfetti();
+    if (typeof window !== "undefined") window.dispatchEvent(new Event("task-completed"));
     const newStreak = streak + 1;
     setStreak(newStreak);
     const earned = BADGES.find((b) => b.threshold === newStreak);
