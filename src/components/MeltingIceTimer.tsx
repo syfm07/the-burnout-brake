@@ -184,15 +184,21 @@ export function MeltingIceTimer({
         )}
       </svg>
 
-      <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+      <div className="absolute inset-x-0 top-0 bottom-16 flex items-center justify-center pointer-events-none">
         <span
           className="text-5xl font-display tabular-nums drop-shadow-[0_2px_8px_rgba(255,255,255,0.6)]"
           style={{ color: "hsl(210 60% 25%)" }}
         >
           {label}
         </span>
-        {sublabel && <span className="text-xs text-muted-foreground mt-1">{sublabel}</span>}
       </div>
+      {sublabel && (
+        <div className="absolute inset-x-0 bottom-2 text-center pointer-events-none">
+          <span className="text-xs text-muted-foreground bg-background/70 backdrop-blur-sm px-2 py-0.5 rounded-full">
+            {sublabel}
+          </span>
+        </div>
+      )}
     </div>
   );
 }
