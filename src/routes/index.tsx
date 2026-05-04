@@ -16,6 +16,18 @@ import { AllDoneScreen } from "@/components/AllDoneScreen";
 import { toast } from "sonner";
 import { Brain, CheckCircle2, Circle, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import confetti from "canvas-confetti";
+
+function fireConfetti() {
+  const end = Date.now() + 800;
+  const colors = ["#a78bfa", "#f472b6", "#34d399", "#fbbf24", "#60a5fa"];
+  (function frame() {
+    confetti({ particleCount: 4, angle: 60, spread: 60, origin: { x: 0 }, colors });
+    confetti({ particleCount: 4, angle: 120, spread: 60, origin: { x: 1 }, colors });
+    if (Date.now() < end) requestAnimationFrame(frame);
+  })();
+  confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 }, colors });
+}
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -88,6 +100,7 @@ function Index() {
   const completeTask = () => {
     if (!tasks) return;
     logCompletion();
+    fireConfetti();
     const newStreak = streak + 1;
     setStreak(newStreak);
     const earned = BADGES.find((b) => b.threshold === newStreak);
