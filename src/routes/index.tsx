@@ -17,6 +17,8 @@ import { toast } from "sonner";
 import { Brain, CheckCircle2, Circle, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import confetti from "canvas-confetti";
+import { ParentalControl } from "@/components/ParentalControl";
+import { CatCompanion } from "@/components/CatCompanion";
 
 function fireConfetti() {
   const end = Date.now() + 800;
@@ -101,6 +103,7 @@ function Index() {
     if (!tasks) return;
     logCompletion();
     fireConfetti();
+    if (typeof window !== "undefined") window.dispatchEvent(new Event("task-completed"));
     const newStreak = streak + 1;
     setStreak(newStreak);
     const earned = BADGES.find((b) => b.threshold === newStreak);
@@ -162,6 +165,8 @@ function Index() {
     <main className="min-h-screen flex flex-col items-center px-4 py-10">
       <ThemeScene theme={theme} />
       <AppToaster />
+      <ParentalControl />
+      <CatCompanion />
 
       <header className="w-full max-w-6xl flex items-start justify-between gap-3 mb-8">
         <div className="flex items-center gap-2">
