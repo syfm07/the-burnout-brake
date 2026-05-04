@@ -58,12 +58,6 @@ export function StudyTimer({
     if (seconds === 0) setRunning(false);
   }, [seconds]);
 
-  // Notify cat companion of focus state
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    window.dispatchEvent(new CustomEvent("focus-state", { detail: { focusing: running && !paused } }));
-  }, [running, paused]);
-
   // 2-minute reset countdown
   useEffect(() => {
     if (resetSeconds === null) return;
