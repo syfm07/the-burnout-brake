@@ -1,4 +1,7 @@
 import { useEffect, useRef, useState } from "react";
+import catWalking from "@/assets/cat-walking.png";
+import catStudying from "@/assets/cat-studying.png";
+import catYawning from "@/assets/cat-yawning.png";
 
 const QUOTES = [
   "You're doing pawsome! 🐾",
@@ -6,65 +9,60 @@ const QUOTES = [
   "Purr-severance pays off!",
   "Breathe in, breathe out. You got this.",
   "Tiny steps, mighty progress.",
-  "Meow means 'keep going' in cat.",
   "I believe in you. Truly.",
   "Stretch your back, then conquer!",
 ];
 
-let audioCtx: AudioContext | null = null;
-function meow(soft = true) {
-  try {
-    if (typeof window === "undefined") return;
-    audioCtx = audioCtx || new (window.AudioContext || (window as any).webkitAudioContext)();
-    const ctx = audioCtx;
-    const o = ctx.createOscillator();
-    const g = ctx.createGain();
-    o.type = "sine";
-    const base = soft ? 520 : 600;
-    o.frequency.setValueAtTime(base, ctx.currentTime);
-    o.frequency.linearRampToValueAtTime(base + 180, ctx.currentTime + 0.15);
-    o.frequency.linearRampToValueAtTime(base - 80, ctx.currentTime + 0.45);
-    g.gain.setValueAtTime(0, ctx.currentTime);
-    g.gain.linearRampToValueAtTime(soft ? 0.08 : 0.14, ctx.currentTime + 0.05);
-    g.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.5);
-    o.connect(g).connect(ctx.destination);
-    o.start();
-    o.stop(ctx.currentTime + 0.55);
-  } catch {}
-}
+type Mode = "idle" | "studying" | "yawning";
 
 export function CatCompanion() {
-  const [waving, setWaving] = useState(false);
+  const [mode, setMode] = useState<Mode>("idle");
   const [quote, setQuote] = useState<string | null>(null);
-  const [bouncing, setBouncing] = useState(false);
-  const timeoutRef = useRef<number | null>(null);
+  const [waving, setWaving] = useState(false);
+  const yawnTimerRef = useRef<number | null>(null);
+  const quoteTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
     const onDone = () => {
-      meow(true);
-      setBouncing(true);
-      setQuote("Meow~ great job! 🎉");
-      window.setTimeout(() => setBouncing(false), 1200);
-      window.setTimeout(() => setQuote(null), 2800);
+      setMode("yawning");
+      setQuote("Yawn~ great job! 🥱");
+      if (yawnTimerRef.current) window.clearTimeout(yawnTimerRef.current);
+      if (quoteTimerRef.current) window.clearTimeout(quoteTimerRef.current);
+      yawnTimerRef.current = window.setTimeout(() => {
+        setMode((m) => (m === "yawning" ? "idle" : m));
+      }, 3500);
+      quoteTimerRef.current = window.setTimeout(() => setQuote(null), 3000);
+    };
+    const onFocus = (e: Event) => {
+      const focusing = (e as CustomEvent).detail?.focusing;
+      setMode((m) => {
+        if (m === "yawning") return m;
+        return focusing ? "studying" : "idle";
+      });
     };
     window.addEventListener("task-completed", onDone);
-    return () => window.removeEventListener("task-completed", onDone);
+    window.addEventListener("focus-state", onFocus as EventListener);
+    return () => {
+      window.removeEventListener("task-completed", onDone);
+      window.removeEventListener("focus-state", onFocus as EventListener);
+    };
   }, []);
 
   const handlePat = () => {
     setWaving(true);
     const q = QUOTES[Math.floor(Math.random() * QUOTES.length)];
     setQuote(q);
-    meow(true);
-    if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
-    window.setTimeout(() => setWaving(false), 1000);
-    timeoutRef.current = window.setTimeout(() => setQuote(null), 2600);
+    if (quoteTimerRef.current) window.clearTimeout(quoteTimerRef.current);
+    window.setTimeout(() => setWaving(false), 700);
+    quoteTimerRef.current = window.setTimeout(() => setQuote(null), 2600);
   };
+
+  const src = mode === "studying" ? catStudying : mode === "yawning" ? catYawning : catWalking;
 
   return (
     <div
       className="fixed bottom-4 left-4 z-40 pointer-events-none select-none"
-      style={{ width: 96 }}
+      style={{ width: 110 }}
     >
       {quote && (
         <div className="mb-2 ml-2 inline-block max-w-[180px] bg-card border border-border rounded-2xl px-3 py-1.5 text-[11px] shadow-soft animate-in fade-in slide-in-from-bottom-2">
@@ -74,57 +72,31 @@ export function CatCompanion() {
       <button
         onClick={handlePat}
         aria-label="Pat the cat"
-        className={`pointer-events-auto block transition-transform hover:scale-110 active:scale-95 ${bouncing ? "animate-bounce" : ""}`}
+        className={`pointer-events-auto block transition-transform hover:scale-110 active:scale-95 ${waving ? "cat-wave" : mode === "idle" ? "cat-bob" : ""}`}
       >
-        <svg width="72" height="72" viewBox="0 0 72 72" className="drop-shadow-md">
-          <path
-            d="M58 52 Q70 48 66 36"
-            stroke="#c4956c"
-            strokeWidth="5"
-            strokeLinecap="round"
-            fill="none"
-            style={{
-              transformOrigin: "58px 52px",
-              animation: "cat-tail 2.4s ease-in-out infinite",
-            }}
-          />
-          <ellipse cx="36" cy="50" rx="20" ry="15" fill="#d9a878" />
-          <circle cx="36" cy="32" r="16" fill="#e8b888" />
-          <polygon points="22,22 26,10 32,20" fill="#d9a878" />
-          <polygon points="50,22 46,10 40,20" fill="#d9a878" />
-          <polygon points="24,20 26,14 30,19" fill="#f4c4a0" />
-          <polygon points="48,20 46,14 42,19" fill="#f4c4a0" />
-          <ellipse cx="30" cy="32" rx="2" ry="3" fill="#2b2b2b" />
-          <ellipse cx="42" cy="32" rx="2" ry="3" fill="#2b2b2b" />
-          <circle cx="30.5" cy="31" r="0.6" fill="#fff" />
-          <circle cx="42.5" cy="31" r="0.6" fill="#fff" />
-          <path d="M36 37 l-1.5 1.5 h3 z" fill="#e08aa8" />
-          <path d="M36 38.5 q-2 2 -3.5 1 M36 38.5 q2 2 3.5 1" stroke="#2b2b2b" strokeWidth="0.8" fill="none" strokeLinecap="round" />
-          <line x1="22" y1="36" x2="30" y2="37" stroke="#2b2b2b" strokeWidth="0.6" />
-          <line x1="22" y1="38" x2="30" y2="38" stroke="#2b2b2b" strokeWidth="0.6" />
-          <line x1="50" y1="36" x2="42" y2="37" stroke="#2b2b2b" strokeWidth="0.6" />
-          <line x1="50" y1="38" x2="42" y2="38" stroke="#2b2b2b" strokeWidth="0.6" />
-          <g
-            style={{
-              transformOrigin: "22px 50px",
-              animation: waving ? "cat-wave 0.5s ease-in-out 2" : "none",
-            }}
-          >
-            <ellipse cx="20" cy="52" rx="5" ry="6" fill="#e8b888" />
-          </g>
-          <ellipse cx="50" cy="60" rx="5" ry="4" fill="#e8b888" />
-        </svg>
+        <img
+          src={src}
+          alt="Cat companion"
+          width={110}
+          height={110}
+          loading="lazy"
+          className="drop-shadow-md"
+          style={{ width: 110, height: 110, objectFit: "contain" }}
+        />
       </button>
 
       <style>{`
-        @keyframes cat-tail {
+        @keyframes cat-bob {
+          0%, 100% { transform: translateY(0) rotate(-2deg); }
+          50% { transform: translateY(-4px) rotate(2deg); }
+        }
+        @keyframes cat-wave-anim {
           0%, 100% { transform: rotate(0deg); }
-          50% { transform: rotate(20deg); }
+          25% { transform: rotate(-8deg); }
+          75% { transform: rotate(8deg); }
         }
-        @keyframes cat-wave {
-          0%, 100% { transform: rotate(0deg) translateY(0); }
-          50% { transform: rotate(-45deg) translateY(-6px); }
-        }
+        .cat-bob { animation: cat-bob 1.6s ease-in-out infinite; transform-origin: bottom center; }
+        .cat-wave { animation: cat-wave-anim 0.5s ease-in-out 2; transform-origin: bottom center; }
       `}</style>
     </div>
   );
