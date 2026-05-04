@@ -18,7 +18,6 @@ import { Brain, CheckCircle2, Circle, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import confetti from "canvas-confetti";
 import { ParentalControl } from "@/components/ParentalControl";
-import { CatCompanion } from "@/components/CatCompanion";
 
 function fireConfetti() {
   const end = Date.now() + 800;
@@ -166,7 +165,6 @@ function Index() {
       <ThemeScene theme={theme} />
       <AppToaster />
       <ParentalControl />
-      <CatCompanion />
 
       <header className="w-full max-w-6xl flex items-start justify-between gap-3 mb-8">
         <div className="flex items-center gap-2">
