@@ -165,6 +165,8 @@ function Index() {
     <main className="min-h-screen flex flex-col items-center px-4 py-10">
       <ThemeScene theme={theme} />
       <AppToaster />
+      <ParentalControl />
+      <CatCompanion />
 
       <header className="w-full max-w-6xl flex items-start justify-between gap-3 mb-8">
         <div className="flex items-center gap-2">
