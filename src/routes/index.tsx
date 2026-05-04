@@ -17,6 +17,8 @@ import { toast } from "sonner";
 import { Brain, CheckCircle2, Circle, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import confetti from "canvas-confetti";
+import { ParentalControl } from "@/components/ParentalControl";
+import { CatCompanion } from "@/components/CatCompanion";
 
 function fireConfetti() {
   const end = Date.now() + 800;
