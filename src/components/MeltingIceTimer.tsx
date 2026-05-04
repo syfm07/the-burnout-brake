@@ -95,38 +95,39 @@ export function MeltingIceTimer({
           style={{ transition: "all 1s ease-out" }}
         />
 
-        {/* Ice block — rounded rect, shrinks from the top */}
+        {/* Ice cube — square, shrinks from the top */}
         {iceHeight > 4 && (
           <g filter="url(#iceBlur)">
             <rect
-              x={100}
+              x={blockLeft}
               y={currentTop}
-              width={120}
+              width={cubeSize}
               height={iceHeight}
-              rx={18}
-              ry={18}
+              rx={10}
+              ry={10}
               fill="url(#iceGrad)"
               stroke="hsl(200 80% 70%)"
               strokeWidth={1.2}
               style={{ transition: "all 1s linear" }}
             />
-            {/* uneven melted top edge */}
+            {/* uneven melted top edge — dips inward, never above currentTop */}
             <path
-              d={`M 100 ${currentTop + 4}
-                  Q 130 ${currentTop - 6}, 160 ${currentTop + 2}
-                  T 220 ${currentTop + 4}`}
-              fill="url(#iceGrad)"
-              stroke="hsl(200 80% 70%)"
-              strokeWidth={1}
+              d={`M ${blockLeft + 6} ${currentTop + 2}
+                  Q ${blockLeft + cubeSize * 0.3} ${currentTop + 8}, 160 ${currentTop + 4}
+                  T ${blockRight - 6} ${currentTop + 2}
+                  L ${blockRight - 6} ${currentTop + 10}
+                  L ${blockLeft + 6} ${currentTop + 10} Z`}
+              fill="hsl(200 85% 82%)"
+              opacity={p > 0.02 ? 0.9 : 0}
               style={{ transition: "all 1s linear" }}
             />
             {/* shine highlight */}
             <rect
-              x={112}
-              y={currentTop + 8}
-              width={14}
-              height={Math.max(0, iceHeight - 20)}
-              rx={6}
+              x={blockLeft + 12}
+              y={currentTop + 12}
+              width={12}
+              height={Math.max(0, iceHeight - 24)}
+              rx={5}
               fill="url(#iceShine)"
               style={{ transition: "all 1s linear" }}
             />
