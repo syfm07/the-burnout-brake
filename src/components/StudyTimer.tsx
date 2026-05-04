@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Pause, Play, SkipForward, HeartHandshake, CheckCircle2, ShieldAlert } from "lucide-react";
 import type { PlannedTask } from "./SessionPlanner";
+import { MeltingIceTimer } from "./MeltingIceTimer";
 
 function fmt(s: number) {
   const m = Math.floor(s / 60).toString().padStart(2, "0");
@@ -145,25 +146,13 @@ export function StudyTimer({
         <h2 className="text-xl font-semibold leading-tight">{task.name}</h2>
       </div>
 
-      <div className="relative">
-        <svg width="280" height="280" viewBox="0 0 320 320" className="-rotate-90">
-          <circle cx="160" cy="160" r="130" stroke="var(--color-muted)" strokeWidth="14" fill="none" />
-          <circle
-            cx="160" cy="160" r="130"
-            stroke="var(--color-primary)" strokeWidth="14" fill="none"
-            strokeLinecap="round"
-            strokeDasharray={C}
-            strokeDashoffset={C * (1 - progress)}
-            style={{ transition: "stroke-dashoffset 1s linear" }}
-          />
-        </svg>
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-5xl font-display tabular-nums">{fmt(seconds)}</span>
-          <span className="text-xs text-muted-foreground mt-1">
-            {done ? "Task complete!" : paused ? "Paused — check-in in progress" : running ? "Focus session" : "Ready when you are"}
-          </span>
-        </div>
-      </div>
+      <MeltingIceTimer
+        progress={progress}
+        label={fmt(seconds)}
+        sublabel={done ? "Melted — task complete!" : paused ? "Paused — check-in in progress" : running ? "Ice is melting…" : "Ready when you are"}
+        active={running && !paused}
+      />
+      
 
       {running && (
         <div className="flex items-center gap-2 text-xs text-muted-foreground bg-secondary/40 rounded-full px-3 py-1">
