@@ -76,12 +76,23 @@ export function ParentalControl() {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="fixed top-4 left-4 z-40 h-10 w-10 rounded-2xl bg-card/80 backdrop-blur border border-border shadow-soft grid place-items-center hover:scale-105 transition-transform"
+        className="fixed top-4 left-4 z-40 group flex items-center gap-2 h-12 pl-3 pr-4 rounded-2xl bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-pillow border border-primary/30 hover:scale-105 active:scale-95 transition-all animate-pulse-soft"
         title="Parental controls"
         aria-label="Parental controls"
       >
-        <Shield className="h-4 w-4 text-primary" />
+        <span className="relative grid place-items-center h-7 w-7 rounded-xl bg-primary-foreground/20">
+          <Shield className="h-4 w-4" />
+          <span className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-emerald-400 ring-2 ring-primary" />
+        </span>
+        <span className="text-xs font-semibold tracking-wide">Parents</span>
       </button>
+      <style>{`
+        @keyframes pulse-soft {
+          0%, 100% { box-shadow: 0 0 0 0 hsl(var(--primary) / 0.4); }
+          50% { box-shadow: 0 0 0 10px hsl(var(--primary) / 0); }
+        }
+        .animate-pulse-soft { animation: pulse-soft 2.4s ease-out infinite; }
+      `}</style>
 
       {open && (
         <div className="fixed inset-0 z-50 bg-background/90 backdrop-blur-md flex items-center justify-center p-6" onClick={() => setOpen(false)}>
