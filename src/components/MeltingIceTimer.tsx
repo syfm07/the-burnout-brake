@@ -39,7 +39,7 @@ export function MeltingIceTimer({
     () =>
       Array.from({ length: 5 }).map((_, i) => ({
         id: i,
-        x: 110 + Math.random() * 100,
+        x: 95 + Math.random() * 130,
         delay: Math.random() * 2.5,
         duration: 1.6 + Math.random() * 1.4,
       })),
