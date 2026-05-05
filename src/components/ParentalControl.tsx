@@ -53,23 +53,28 @@ export function ParentalControl() {
     toast.success("Parent email saved");
   };
 
-  const sendReport = () => {
+  const [sending, setSending] = useState(false);
+
+  const sendReport = async () => {
     if (!email) {
       toast.error("Enter a parent email first");
       return;
     }
-    const subject = encodeURIComponent("My study progress — The Burnout Brake");
-    const body = encodeURIComponent(
-      `Hi! Here's my recent study progress:\n\n` +
-      `• Tasks completed today: ${stats.today}\n` +
-      `• Tasks completed this week: ${stats.week}\n` +
-      `• All-time tasks completed: ${stats.total}\n` +
-      `• Current streak: ${stats.streak}\n` +
-      `• Peak study hour: ${stats.peak}\n\n` +
-      `Sent from The Burnout Brake 🌿`
-    );
-    window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
-    toast("Opening your email app…");
+    setSending(true);
+    try {
+      const res = await fetch("/api/send-parent-report", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ parentEmail: email, stats }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data?.error || "Failed to send");
+      toast.success("Report sent to parent ✉️");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to send report");
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
