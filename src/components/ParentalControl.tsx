@@ -143,8 +143,8 @@ export function ParentalControl() {
               <Button variant="ghost" className="flex-1 rounded-2xl text-xs" onClick={() => setOpen(false)}>
                 Close
               </Button>
-              <Button className="flex-1 rounded-2xl text-xs" onClick={sendReport}>
-                <Mail className="h-3 w-3 mr-1" /> Send report
+              <Button className="flex-1 rounded-2xl text-xs" onClick={sendReport} disabled={sending}>
+                <Mail className="h-3 w-3 mr-1" /> {sending ? "Sending…" : "Send report"}
               </Button>
             </div>
           </div>
