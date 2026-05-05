@@ -77,7 +77,7 @@ function Index() {
     if (!tasks) return;
     const i = window.setInterval(() => {
       setOverlay((cur) => (cur === null ? "mood" : cur));
-    }, 10 * 60 * 1000);
+    }, 15 * 60 * 1000);
     return () => window.clearInterval(i);
   }, [tasks]);
 
