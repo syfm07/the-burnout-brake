@@ -10,33 +10,43 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiSendParentReportRouteImport } from './routes/api/send-parent-report'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiSendParentReportRoute = ApiSendParentReportRouteImport.update({
+  id: '/api/send-parent-report',
+  path: '/api/send-parent-report',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/api/send-parent-report': typeof ApiSendParentReportRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/api/send-parent-report': typeof ApiSendParentReportRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/api/send-parent-report': typeof ApiSendParentReportRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/api/send-parent-report'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/api/send-parent-report'
+  id: '__root__' | '/' | '/api/send-parent-report'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ApiSendParentReportRoute: typeof ApiSendParentReportRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +58,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/send-parent-report': {
+      id: '/api/send-parent-report'
+      path: '/api/send-parent-report'
+      fullPath: '/api/send-parent-report'
+      preLoaderRoute: typeof ApiSendParentReportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ApiSendParentReportRoute: ApiSendParentReportRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
