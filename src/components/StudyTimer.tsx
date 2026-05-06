@@ -88,15 +88,6 @@ export function StudyTimer({
     return () => document.removeEventListener("visibilitychange", onVis);
   }, [running]);
 
-  // Fullscreen on start
-  const enterFullscreen = async () => {
-    try {
-      if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
-        await document.documentElement.requestFullscreen();
-      }
-    } catch { /* ignore */ }
-  };
-
   const handleStartPause = () => {
     if (running) {
       // Pausing
@@ -110,7 +101,6 @@ export function StudyTimer({
         return next;
       });
     } else {
-      enterFullscreen();
       setRunning(true);
     }
   };
