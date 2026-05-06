@@ -122,7 +122,7 @@ export function StudyTimer({
   const dismissAway = () => {
     setShowAwayPrompt(false);
     if (seconds > 0) setRunning(true);
-    enterFullscreen();
+    
   };
 
   const progress = 1 - seconds / total;
